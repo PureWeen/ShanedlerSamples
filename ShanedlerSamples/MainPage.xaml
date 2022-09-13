@@ -28,6 +28,8 @@
                 FontSize="18"
                 HorizontalOptions="Center" />
 
+            <Entry Placeholder="Text Field" Text="Starting text" WidthRequest="300"></Entry>
+            
             <Button
                 x:Name="CounterBtn"
                 Text="Click me"
