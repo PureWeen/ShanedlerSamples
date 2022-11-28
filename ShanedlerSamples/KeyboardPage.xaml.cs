@@ -20,4 +20,9 @@ public partial class KeyboardPage : ContentPage
             KeyboardManager.HideKeyboard(inputField);
         }
     }
+
+    private void OnEntryLoaded(object sender, EventArgs e)
+    {
+        KeyboardManager.ShowKeyboard(firstFocusMe);
+    }
 }

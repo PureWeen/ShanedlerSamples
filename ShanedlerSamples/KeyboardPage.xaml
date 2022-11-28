@@ -5,6 +5,7 @@
              Title="KeyboardPage">
     <VerticalStackLayout>
         <Entry Text="input field" x:Name="inputField"></Entry>
+        <Entry Text="input field" x:Name="firstFocusMe" Loaded="OnEntryLoaded"></Entry>
         <Button Text="Toggle Keyboard" Clicked="OnToggleKeyboard"></Button>
     </VerticalStackLayout>
 </ContentPage>
