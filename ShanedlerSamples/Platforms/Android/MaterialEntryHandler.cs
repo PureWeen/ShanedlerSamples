@@ -12,7 +12,7 @@ namespace ShanedlerSamples.Platforms.Android
 {
     public class MaterialEntryHandler : ViewHandler<Entry, TextInputLayout>, IEntryHandler
     {
-        public static IPropertyMapper<IEntry, MaterialEntryHandler> Mapper = new MauiShouldDoBetterMapper<IEntry, MaterialEntryHandler>(EntryHandler.Mapper)
+        public static IPropertyMapper<IEntry, MaterialEntryHandler> Mapper = new MapperWorkaround<IEntry, MaterialEntryHandler>(EntryHandler.Mapper)
         {
             // Place holder maps to a different property
             [nameof(IEntry.Placeholder)] = MapPlaceHolder,

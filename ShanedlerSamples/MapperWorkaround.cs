@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace ShanedlerSamples.Platforms
 {
-    internal class MauiShouldDoBetterMapper<TVirtualView, TViewHandler> : PropertyMapper<TVirtualView, TViewHandler>
+    internal class MapperWorkaround<TVirtualView, TViewHandler> : PropertyMapper<TVirtualView, TViewHandler>
         where TVirtualView : IElement
         where TViewHandler : IElementHandler
     {
-        public MauiShouldDoBetterMapper(params IPropertyMapper[] chained) : base(chained)
+        public MapperWorkaround(params IPropertyMapper[] chained) : base(chained)
         {
         }
 
