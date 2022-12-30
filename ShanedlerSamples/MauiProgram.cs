@@ -9,12 +9,7 @@ public static class MauiProgram
         var builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()
-            .ConfigureMauiHandlers(handlers =>
-            {
-#if ANDROID
-                handlers.AddHandler<Entry, ShanedlerSamples.Platforms.Android.MaterialEntryHandler>();
-#endif
-            })
+            .ConfigureShanedler()
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");

@@ -1,8 +1,8 @@
-#if MACCATALYST
+#if IOS
 using System;
 using UIKit;
 
-namespace Microsoft.Maui.Platform
+namespace ShanedlerSamples
 {
     public static partial class KeyboardManager
     {

@@ -1,7 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="ShanedlerSamples.MainPage">
+             x:Class="ShanedlerSamples.MainPage"
+            xmlns:local="clr-namespace:ShanedlerSamples">
 
     <ScrollView>
         <VerticalStackLayout
@@ -28,8 +29,19 @@
                 FontSize="18"
                 HorizontalOptions="Center" />
 
-            <Entry Placeholder="Text Field" Text="Starting text" WidthRequest="300"></Entry>
-            
+            <Entry Placeholder="Text Field" Text="Starting text" WidthRequest="300">
+                <Entry.Behaviors>
+                    <local:TapToCloseBehavior></local:TapToCloseBehavior>
+                </Entry.Behaviors>
+
+            </Entry>
+
+            <Entry Placeholder="Text Field" Text="Starting text" WidthRequest="300">
+                <Entry.Behaviors>
+                    <local:TapToCloseBehavior></local:TapToCloseBehavior>
+                </Entry.Behaviors>
+
+            </Entry>
             <Button
                 x:Name="CounterBtn"
                 Text="Click me"

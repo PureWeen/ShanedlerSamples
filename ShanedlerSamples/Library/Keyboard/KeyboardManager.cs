@@ -1,6 +1,6 @@
 using System;
 
-namespace Microsoft.Maui.Platform
+namespace ShanedlerSamples
 {
     public static partial class KeyboardManager
     {
