@@ -47,8 +47,8 @@ namespace ShanedlerSamples
 
             if (_platformView != null)
             {
-                _platformView = null;
                 _platformView.FocusChange -= OnFocusChanged;
+                _platformView = null;
             }
 
             _view = null;
