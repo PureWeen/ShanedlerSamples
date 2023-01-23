@@ -1,4 +1,5 @@
-﻿using Microsoft.Maui.Handlers;
+﻿using Microsoft.Maui.Controls;
+using Microsoft.Maui.Handlers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ShanedlerSamples
 {
-    public static class HostExtensions
+    public static partial class HostExtensions
     {
 
         public static MauiAppBuilder ConfigureShanedler(this MauiAppBuilder builder)
