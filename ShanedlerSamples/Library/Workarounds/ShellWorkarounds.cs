@@ -4,11 +4,15 @@ using Android.Views;
 using AndroidX.CoordinatorLayout.Widget;
 using AndroidX.DrawerLayout.Widget;
 using AndroidX.ViewPager2.Widget;
+using Google.Android.Material.BottomNavigation;
+using Microsoft.Maui.Controls;
 #endif
 
 using Microsoft.Maui.Controls.Handlers.Compatibility;
+using Microsoft.Maui.Controls.Platform;
 using Microsoft.Maui.Controls.Platform.Compatibility;
 using Microsoft.Maui.Platform;
+using System.ComponentModel;
 
 namespace ShanedlerSamples
 {
@@ -41,6 +45,90 @@ namespace ShanedlerSamples
                 return new ShellToolbarTrackerrWorkaround(this, toolbar, ((IShellContext)this).CurrentDrawerLayout);
             }
 
+            protected override IShellItemRenderer CreateShellItemRenderer(ShellItem shellItem)
+            {
+                return new ShellItemRendererWorkaround(this);
+            }
+
+
+            class ShellItemRendererWorkaround : ShellItemRenderer
+            {
+                IMauiContext MauiContext => ShellContext.Shell.Handler.MauiContext;
+
+                BottomNavigationView _bottomView;
+                public ShellItemRendererWorkaround(IShellContext shellContext) : base(shellContext)
+                {
+                }
+
+                public override Android.Views.View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+                {
+                    var view = base.OnCreateView(inflater, container, savedInstanceState);
+                    _bottomView = (view as ViewGroup).GetChildrenOfType<BottomNavigationView>().FirstOrDefault();
+                    return view;
+                }
+
+                protected override void OnShellSectionPropertyChanged(object sender, PropertyChangedEventArgs e)
+                {
+                    if (e.PropertyName == BaseShellItem.IconProperty.PropertyName ||
+                        e.PropertyName == BaseShellItem.TitleProperty.PropertyName)
+                    {
+                        var content = (ShellSection)sender;
+                        var index = ((IShellItemController)ShellItem).GetItems().IndexOf(content);
+
+                        var itemCount = ((IShellItemController)ShellItem).GetItems().Count;
+                        var maxItems = _bottomView.MaxItemCount;
+
+                        if (itemCount > maxItems && index > maxItems - 2)
+                            return;
+
+                        var menuItem = _bottomView.Menu.FindItem(index);
+
+                        if (e.PropertyName == BaseShellItem.IconProperty.PropertyName)
+                        {
+                            UpdateShellSectionIcon(content, menuItem);
+                        }
+                        else
+                            UpdateShellSectionTitle(content, menuItem);
+                    }
+                    else
+                    {
+                        base.OnShellSectionPropertyChanged(sender, e);
+                    }
+                }
+
+                async void UpdateShellSectionIcon(ShellSection shellSection, IMenuItem menuItem)
+                {
+                    await SetMenuItemIcon(menuItem, shellSection.Icon, MauiContext);
+                }
+
+                void UpdateShellSectionTitle(ShellSection shellSection, IMenuItem menuItem)
+                {
+                    using (var title = new Java.Lang.String(shellSection.Title))
+                    {
+                        menuItem.SetTitle(title);
+                    }
+                }
+
+                internal static async Task SetMenuItemIcon(IMenuItem menuItem, ImageSource source, IMauiContext context)
+                {
+                    if (menuItem.Handle == IntPtr.Zero)
+                        return;
+
+                    if (source == null)
+                        return;
+
+                    var services = context.Services;
+                    var provider = services.GetRequiredService<IImageSourceServiceProvider>();
+                    var imageSourceService = provider.GetRequiredImageSourceService(source);
+
+                    var result = await imageSourceService.GetDrawableAsync(
+                        source,
+                        context.Context);
+
+                    if (menuItem.Handle != IntPtr.Zero)
+                        menuItem.SetIcon(result.Value);
+                }
+            }
 
             class ShellToolbarTrackerrWorkaround : ShellToolbarTracker
             {
