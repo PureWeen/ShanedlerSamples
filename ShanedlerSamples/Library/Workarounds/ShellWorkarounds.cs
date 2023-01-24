@@ -1,4 +1,5 @@
 ﻿#if ANDROID
+using Android.Content;
 using Android.OS;
 using Android.Views;
 using AndroidX.CoordinatorLayout.Widget;
@@ -42,14 +43,13 @@ namespace ShanedlerSamples
 
             protected override IShellToolbarTracker CreateTrackerForToolbar(AndroidX.AppCompat.Widget.Toolbar toolbar)
             {
-                return new ShellToolbarTrackerrWorkaround(this, toolbar, ((IShellContext)this).CurrentDrawerLayout);
+                return new ShellToolbarTrackerWorkaround(this, toolbar, ((IShellContext)this).CurrentDrawerLayout);
             }
 
             protected override IShellItemRenderer CreateShellItemRenderer(ShellItem shellItem)
             {
                 return new ShellItemRendererWorkaround(this);
             }
-
 
             class ShellItemRendererWorkaround : ShellItemRenderer
             {
@@ -130,11 +130,11 @@ namespace ShanedlerSamples
                 }
             }
 
-            class ShellToolbarTrackerrWorkaround : ShellToolbarTracker
+            class ShellToolbarTrackerWorkaround : ShellToolbarTracker
             {
                 DrawerLayout _drawerLayout;
 
-                public ShellToolbarTrackerrWorkaround(
+                public ShellToolbarTrackerWorkaround(
                     IShellContext shellContext,
                     AndroidX.AppCompat.Widget.Toolbar toolbar,
                     DrawerLayout drawerLayout) : base(shellContext, toolbar, drawerLayout)
@@ -153,7 +153,14 @@ namespace ShanedlerSamples
 
                 protected override void OnPageChanged(Page oldPage, Page newPage)
                 {
-                    base.OnPageChanged(oldPage, newPage);
+                    try
+                    {
+                        base.OnPageChanged(oldPage, newPage);
+                    }
+                    catch (System.NullReferenceException)
+                    {
+
+                    }
                 }
             }
 
@@ -161,7 +168,7 @@ namespace ShanedlerSamples
             {
                 bool _selecting;
                 readonly IShellContext _shellContext;
-                public ShellToolbarTrackerrWorkaround ToolbarTracker { get; set; }
+                public ShellToolbarTrackerWorkaround ToolbarTracker { get; set; }
                 ViewPager2 _viewPager;
                 IShellSectionController SectionController => (IShellSectionController)ShellSection;
                 IShellController ShellController => _shellContext.Shell;
