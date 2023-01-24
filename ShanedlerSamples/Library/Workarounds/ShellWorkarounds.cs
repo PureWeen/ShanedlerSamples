@@ -132,7 +132,6 @@ namespace ShanedlerSamples
 
             class ShellToolbarTrackerWorkaround : ShellToolbarTracker
             {
-                bool _isDisposed = false;
                 DrawerLayout _drawerLayout;
 
                 public static ShellToolbarTrackerWorkaround Current { get; set; }
@@ -144,20 +143,6 @@ namespace ShanedlerSamples
                 {
                     Current = this;
                     _drawerLayout = drawerLayout;
-                }
-
-                protected override void Dispose(bool disposing)
-                {
-                    _isDisposed = true;
-                    base.Dispose(disposing);
-                }
-
-                protected override void OnPageChanged(Page oldPage, Page newPage)
-                {
-                    if (_isDisposed)
-                        return;
-
-                    base.OnPageChanged(oldPage, newPage);
                 }
             }
 
