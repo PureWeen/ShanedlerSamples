@@ -132,35 +132,32 @@ namespace ShanedlerSamples
 
             class ShellToolbarTrackerWorkaround : ShellToolbarTracker
             {
+                bool _isDisposed = false;
                 DrawerLayout _drawerLayout;
+
+                public static ShellToolbarTrackerWorkaround Current { get; set; }
 
                 public ShellToolbarTrackerWorkaround(
                     IShellContext shellContext,
                     AndroidX.AppCompat.Widget.Toolbar toolbar,
                     DrawerLayout drawerLayout) : base(shellContext, toolbar, drawerLayout)
                 {
+                    Current = this;
                     _drawerLayout = drawerLayout;
-                    _drawerLayout.ViewAttachedToWindow += DrawerLayoutAttached;
                 }
 
-                void DrawerLayoutAttached(object sender, Android.Views.View.ViewAttachedToWindowEventArgs e)
+                protected override void Dispose(bool disposing)
                 {
-                    _drawerLayout.ViewAttachedToWindow -= DrawerLayoutAttached;
-                    var rootView = _drawerLayout.GetChildrenOfType<CoordinatorLayout>().FirstOrDefault();
-                    var fragment = (ShellSectionRendererWorkaround)AndroidX.Fragment.App.FragmentManager.FindFragment(rootView);
-                    fragment.ToolbarTracker = this;
+                    _isDisposed = true;
+                    base.Dispose(disposing);
                 }
 
                 protected override void OnPageChanged(Page oldPage, Page newPage)
                 {
-                    try
-                    {
-                        base.OnPageChanged(oldPage, newPage);
-                    }
-                    catch (System.NullReferenceException)
-                    {
+                    if (_isDisposed)
+                        return;
 
-                    }
+                    base.OnPageChanged(oldPage, newPage);
                 }
             }
 
@@ -181,6 +178,8 @@ namespace ShanedlerSamples
                 public override Android.Views.View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
                 {
                     var view = base.OnCreateView(inflater, container, savedInstanceState);
+                    ToolbarTracker = ShellToolbarTrackerWorkaround.Current;
+                    ShellToolbarTrackerWorkaround.Current = null;
                     _viewPager = (view as ViewGroup).GetChildrenOfType<ViewPager2>().FirstOrDefault();
                     return view;
                 }
