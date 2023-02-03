@@ -162,6 +162,8 @@ namespace Microsoft.Maui.Controls.Platform
 
 				if (_platformView != null)
 					_page.HandlerChanged -= OnHandlerChanged;
+
+                		SetToStableView();
 			}
 
 		}
