@@ -58,8 +58,7 @@ namespace Microsoft.Maui.Controls.Platform
 		public override void OnDestroy()
 		{
 			base.OnDestroy();
-			if (Context.IsDestroyed())
-				Page?.Handler?.DisconnectHandler();
+			Page?.Handler?.DisconnectHandler();
 		}
 
 		public override void OnResume()
