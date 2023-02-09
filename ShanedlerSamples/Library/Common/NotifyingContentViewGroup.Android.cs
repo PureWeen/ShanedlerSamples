@@ -1,4 +1,5 @@
-﻿using Android.Content;
+﻿#if ANDROID
+using Android.Content;
 using Android.Views;
 using Microsoft.Maui.Platform;
 using System;
@@ -28,3 +29,4 @@ namespace ShanedlerSamples
         }
     }
 }
+#endif

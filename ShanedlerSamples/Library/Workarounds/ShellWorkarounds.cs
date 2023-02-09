@@ -7,7 +7,6 @@ using AndroidX.DrawerLayout.Widget;
 using AndroidX.ViewPager2.Widget;
 using Google.Android.Material.BottomNavigation;
 using Microsoft.Maui.Controls;
-#endif
 
 using Microsoft.Maui.Controls.Handlers.Compatibility;
 using Microsoft.Maui.Controls.Platform;
@@ -17,8 +16,6 @@ using System.ComponentModel;
 
 namespace ShanedlerSamples
 {
-
-#if ANDROID
 
     public class ShellWorkarounds : ShellRenderer
     {
@@ -218,7 +215,7 @@ namespace ShanedlerSamples
             }
         }
 
-#endif
-
     }
 }
+
+#endif

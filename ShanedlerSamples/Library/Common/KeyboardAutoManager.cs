@@ -5,7 +5,9 @@
  * UITextFields/UITextViews. Link to their MIT License can be found here:
  * https://github.com/hackiftekhar/IQKeyboardManager/blob/7399efb730eea084571b45a1a9b36a3a3c54c44f/LICENSE.md
  */
+#nullable enable
 
+using Microsoft.Maui.Controls.Platform.Compatibility;
 using ShanedlerSamples.Library.Common;
 using System;
 using UIKit;
@@ -22,7 +24,11 @@ internal static class KeyboardAutoManager
             return;
         }
 
-        var superview = customSuperView ?? view.FindResponder<ContainerViewController>()?.View;
+        var superview =
+            customSuperView ??
+            view.FindResponder<ContainerViewController>()?.View ??
+            view.FindResponder<ShellSectionRootRenderer>()?.View;
+
         if (superview is null)
         {
             view.ResignFirstResponder();
