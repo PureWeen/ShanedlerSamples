@@ -10,8 +10,12 @@ namespace ShanedlerSamples
 {
     public static partial class HostExtensions
     {
-
         public static MauiAppBuilder ConfigureShanedler(this MauiAppBuilder builder)
+        {
+            return builder.ConfigureShanedler(true);
+        }
+
+        public static MauiAppBuilder ConfigureShanedler(this MauiAppBuilder builder, bool addAllWorkaround)
         {
 #if ANDROID
 
@@ -22,6 +26,15 @@ namespace ShanedlerSamples
 
             PageHandler.PlatformViewFactory = (h) => new NotifyingContentViewGroup(h.Context);
 #endif
+
+
+            if (addAllWorkaround)
+            {
+                builder.ConfigureShellWorkarounds();
+                builder.ConfigureTabbedPageWorkarounds();
+                builder.ConfigureEntryNextWorkaround();
+            }
+
             return builder;
         }
 
