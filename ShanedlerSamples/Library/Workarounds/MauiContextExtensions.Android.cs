@@ -74,8 +74,6 @@ namespace Microsoft.Maui.Platform
                 if (scopedMauiContext.GetActivity() == context.GetActivity() &&
                     view.Handler.PlatformView is AView platformView)
                 {
-                    var method = scopedMauiContext.GetType().GetMethod("AddWeakSpecific", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-
                     scopedMauiContext.AddWeakSpecific(layoutInflater);
                     scopedMauiContext.AddWeakSpecific(childFragmentManager);
                     return platformView;
