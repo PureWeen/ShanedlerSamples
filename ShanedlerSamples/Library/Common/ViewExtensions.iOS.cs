@@ -9,9 +9,8 @@ using UIKit;
 
 namespace ShanedlerSamples.Library.Common
 {
-    public static class ShanedlerSamplesExtensions
+    public static partial class ShanedlerSamplesExtensions
     {
-
         internal static T? FindResponder<T>(this UIView view) where T : UIResponder
         {
             var nextResponder = view as UIResponder;

@@ -18,7 +18,7 @@ namespace ShanedlerSamples
 
         public static MauiAppBuilder ConfigureShellWorkarounds(this MauiAppBuilder builder)
         {
-#if ANDROID
+#if ANDROID || IOS
 
             builder.ConfigureMauiHandlers(handlers =>
             {
