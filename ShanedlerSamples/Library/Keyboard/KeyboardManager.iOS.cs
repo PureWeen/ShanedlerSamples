@@ -2,7 +2,7 @@
 using System;
 using UIKit;
 
-namespace ShanedlerSamples
+namespace Shanedler.Workarounds
 {
     public static partial class KeyboardManager
     {

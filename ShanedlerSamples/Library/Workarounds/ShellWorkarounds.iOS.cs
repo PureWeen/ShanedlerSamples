@@ -1,4 +1,4 @@
-﻿#if IOS
+﻿#if IOS || MACCATALYST
 using CoreGraphics;
 using Foundation;
 using Microsoft.Maui;
@@ -10,7 +10,7 @@ using ObjCRuntime;
 using System.Reflection;
 using UIKit;
 
-namespace ShanedlerSamples
+namespace Shanedler.Workarounds
 {
     // Fix Thank you to https://github.com/vhugogarcia
     public class ShellWorkarounds : ShellRenderer

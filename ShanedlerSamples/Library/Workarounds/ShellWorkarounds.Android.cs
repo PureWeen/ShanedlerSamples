@@ -14,7 +14,7 @@ using Microsoft.Maui.Controls.Platform.Compatibility;
 using Microsoft.Maui.Platform;
 using System.ComponentModel;
 
-namespace ShanedlerSamples
+namespace Shanedler.Workarounds
 {
 
     public class ShellWorkarounds : ShellRenderer

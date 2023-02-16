@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UIKit;
 
-namespace ShanedlerSamples
+namespace Shanedler.Workarounds
 {
     internal class CustomEntryHandler : EntryHandler
     {

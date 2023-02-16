@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ShanedlerSamples
+namespace Shanedler.Workarounds
 {
     public static partial class HostExtensions
     {
@@ -18,12 +18,6 @@ namespace ShanedlerSamples
         public static MauiAppBuilder ConfigureShanedler(this MauiAppBuilder builder, bool addAllWorkaround)
         {
 #if ANDROID
-
-            builder.ConfigureMauiHandlers(handlers =>
-            {
-                handlers.AddHandler<Entry, Platforms.Android.MaterialEntryHandler>();
-            });
-
             PageHandler.PlatformViewFactory = (h) => new NotifyingContentViewGroup(h.Context);
 #endif
 

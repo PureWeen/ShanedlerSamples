@@ -1,5 +1,5 @@
 ﻿
-namespace ShanedlerSamples
+namespace Shanedler.Workarounds
 {
     public static partial class HostExtensions
     {

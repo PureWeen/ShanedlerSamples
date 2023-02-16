@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ShanedlerSamples
+namespace Shanedler.Workarounds
 {
     public class ShellContentDI : ShellContent, IShellContentController
     {

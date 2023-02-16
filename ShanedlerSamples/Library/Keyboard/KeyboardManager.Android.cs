@@ -10,7 +10,7 @@ using AndroidX.Core.View;
 using Google.Android.Material.TextField;
 using AView = Android.Views.View;
 
-namespace ShanedlerSamples
+namespace Shanedler.Workarounds
 {
     public static partial class KeyboardManager
     {

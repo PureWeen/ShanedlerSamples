@@ -4,9 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using UIKit;
 
-namespace ShanedlerSamples.Library.Common
+namespace Shanedler.Workarounds.Library.Common
 {
     public static partial class ShanedlerSamplesExtensions
     {
