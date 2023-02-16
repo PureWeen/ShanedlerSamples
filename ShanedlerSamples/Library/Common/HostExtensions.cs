@@ -27,6 +27,9 @@ namespace Shanedler.Workarounds
                 builder.ConfigureShellWorkarounds();
                 builder.ConfigureTabbedPageWorkarounds();
                 builder.ConfigureEntryNextWorkaround();
+#if ANDROID
+                builder.ConfigureEntryFocusOpensKeyboard();
+#endif
             }
 
             return builder;

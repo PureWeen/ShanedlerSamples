@@ -5,24 +5,20 @@ using Android.Content;
 using Android.OS;
 using Android.Views;
 using Android.Views.InputMethods;
-using Android.Widget;
+using TextView = Android.Widget.TextView;
+using EditText = Android.Widget.EditText;
+using AndroidX.AppCompat.Widget;
 using AndroidX.Core.View;
 using Google.Android.Material.TextField;
+using Microsoft.Maui.Platform;
 using AView = Android.Views.View;
 
 namespace Shanedler.Workarounds
 {
     public static partial class KeyboardManager
     {
-        static void ShowKeyboard(this AView inputView)
+        internal static void HideKeyboard(this AView inputView, bool overrideValidation = false)
         {
-            (inputView.GetInputView() as TextView).ShowKeyboard();
-        }
-
-        static void HideKeyboard(this AView inputView, bool overrideValidation = false)
-        {
-            inputView = inputView.GetInputView();
-
             if (inputView?.Context == null)
                 throw new ArgumentNullException(nameof(inputView) + " must be set before the keyboard can be hidden.");
 
@@ -37,46 +33,82 @@ namespace Shanedler.Workarounds
             }
         }
 
-        static void ShowKeyboard(this TextView inputView, bool focusRequested = false)
+        internal static void ShowKeyboard(this TextView inputView)
         {
             if (inputView?.Context == null)
                 throw new ArgumentNullException(nameof(inputView) + " must be set before the keyboard can be shown.");
 
             using (var inputMethodManager = (InputMethodManager)inputView.Context.GetSystemService(Context.InputMethodService)!)
             {
-                if (!inputView.HasFocus)
-                {
-                    // The keyboard only likes to open when you've focused the element that the keyboard will interact with
-                    // so we request focus and then call showkeyboard a second time
-                    inputView.RequestFocus();
-                    new Handler(Looper.MainLooper).Post(() => inputView.ShowKeyboard(true));
-                }
-                else
-                {
-                    inputMethodManager?.ShowSoftInput(inputView, 0);
-                }
+                // The zero value for the second parameter comes from 
+                // https://developer.android.com/reference/android/view/inputmethod/InputMethodManager#showSoftInput(android.view.View,%20int)
+                // Apparently there's no named value for zero in this case
+                inputMethodManager?.ShowSoftInput(inputView, 0);
             }
         }
 
-        static AView GetInputView(this AView view)
+        internal static void ShowKeyboard(this SearchView searchView)
+        {
+            if (searchView?.Context == null || searchView?.Resources == null)
+            {
+                throw new ArgumentNullException(nameof(searchView));
+            }
+
+            // Dig into the SearchView and find the actual TextView that we want to show keyboard input for
+            int searchViewTextViewId = searchView.Resources.GetIdentifier("android:id/search_src_text", null, null);
+
+            if (searchViewTextViewId == 0)
+            {
+                // Cannot find the resource Id; nothing else to do
+                return;
+            }
+
+            var queryEditor = searchView.GetFirstChildOfType<EditText>();
+
+            if (queryEditor == null)
+                return;
+
+            using (var inputMethodManager = (InputMethodManager)searchView.Context.GetSystemService(Context.InputMethodService)!)
+            {
+                // The zero value for the second parameter comes from 
+                // https://developer.android.com/reference/android/view/inputmethod/InputMethodManager#showSoftInput(android.view.View,%20int)
+                // Apparently there's no named value for zero in this case
+                inputMethodManager?.ShowSoftInput(queryEditor, 0);
+            }
+        }
+
+        internal static void ShowKeyboard(this AView view)
         {
             switch (view)
             {
                 case SearchView searchView:
-                    return searchView.FindViewById(searchView.Resources.GetIdentifier("android:id/search_src_text", null, null));
+                    searchView.ShowKeyboard();
+                    break;
                 case TextView textView:
-                    return textView;
-                case TextInputLayout inputLayout:
-                    return inputLayout.EditText;
+                    textView.ShowKeyboard();
+                    break;
             }
-
-            throw new Exception($"Unable to locate `TextView` for {view}");
         }
 
-        static bool IsSoftKeyboardVisible(this AView view)
+        internal static void PostShowKeyboard(this AView view)
         {
-            view = view.GetInputView();
+            void ShowKeyboard()
+            {
+                // Since we're posting this on the queue, it's possible something else will have disposed of the view
+                // by the time the looper is running this, so we have to verify that the view is still usable
+                if (view.IsDisposed())
+                {
+                    return;
+                }
 
+                view.ShowKeyboard();
+            };
+
+            view.Post(ShowKeyboard);
+        }
+
+        public static bool IsSoftKeyboardVisible(this AView view)
+        {
             var insets = ViewCompat.GetRootWindowInsets(view);
             if (insets == null)
                 return false;
