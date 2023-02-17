@@ -7,9 +7,9 @@ using System.Text;
 using System.Threading.Tasks;
 using UIKit;
 
-namespace Shanedler.Workarounds.Library.Common
+namespace Maui.Workarounds.Library.Common
 {
-    public static partial class ShanedlerSamplesExtensions
+    internal static partial class Extensions
     {
         internal static T? FindResponder<T>(this UIView view) where T : UIResponder
         {

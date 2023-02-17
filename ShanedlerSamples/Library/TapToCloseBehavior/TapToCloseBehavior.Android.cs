@@ -8,7 +8,7 @@ using Microsoft.Maui.Platform;
 using Android.Widget;
 using IOnGestureListener = Android.Views.GestureDetector.IOnGestureListener;
 
-namespace Shanedler.Workarounds
+namespace Maui.Workarounds
 {
     public partial class TapToCloseBehavior
     {
@@ -67,7 +67,7 @@ namespace Shanedler.Workarounds
                 if (GetPage(_view).Handler.PlatformView is NotifyingContentViewGroup pagePlatformView)
                     _platformPageView = pagePlatformView;
                 else
-                    throw new Exception("You need to call builder.ConfigureShanedler");
+                    throw new Exception("You need to call builder.ConfigureMauiWorkarounds");
 
                 _platformPageView.DispatchTouch += OnDispatchTouch;
                 _gestureListener = new GestureListener(_view, _platformView);

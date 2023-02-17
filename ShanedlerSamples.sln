@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.31611.283
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShanedlerSamples", "ShanedlerSamples\ShanedlerSamples.csproj", "{A7E93527-924D-4EEE-9246-4194B036835F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shanedler.Workarounds", "Shanedler.Workarounds\Shanedler.Workarounds.csproj", "{F070AA7E-D193-47DF-AFA3-659A71C06552}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Maui.Workarounds", "Shanedler.Workarounds\Maui.Workarounds.csproj", "{F070AA7E-D193-47DF-AFA3-659A71C06552}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

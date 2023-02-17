@@ -8,7 +8,7 @@
 #nullable enable
 
 using Microsoft.Maui.Controls.Platform.Compatibility;
-using Shanedler.Workarounds.Library.Common;
+using Maui.Workarounds.Library.Common;
 using System;
 using UIKit;
 

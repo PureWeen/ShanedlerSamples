@@ -2,7 +2,7 @@
 using System;
 using UIKit;
 
-namespace Shanedler.Workarounds
+namespace Maui.Workarounds
 {
     public static partial class KeyboardManager
     {

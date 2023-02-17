@@ -1,13 +1,30 @@
 ﻿#nullable enable
+using Maui.Workarounds;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Shanedler.Workarounds.Library.Common
+
+namespace Microsoft.Maui.Controls
 {
-    public static partial class ShanedlerSamplesExtensions
+    public static partial class ControlsExtensions
+    {
+        public static void FocusAndOpenKeyboard(this VisualElement element)
+        {
+#if ANDROID
+            KeyboardManager.ShowKeyboard(element);
+#else
+            element.Focus();
+#endif
+        }
+    }
+}
+
+namespace Maui.Workarounds.Library.Common
+{
+    internal static partial class Extensions
     {
         internal static T? FindParentOfType<T>(this Element element, bool includeThis = false)
             where T : IElement

@@ -11,19 +11,19 @@
 
 ### Features added
 - Android, tapping off into nothingess closes keyboard (need to use included behaviors for this to work)
-
+- FocusAndOpenKeyboard if you want to open the keyboard
 
 #### All workarounds
 
 ```C#
-builder.ConfigureShanedler();
+builder.ConfigureMauiWorkarounds();
 ```
 
 
 #### Pick some
 
 ```C#
-builder.ConfigureShanedler(false);
+builder.ConfigureMauiWorkarounds(false);
 builder.ConfigureShellWorkarounds();
 builder.ConfigureTabbedPageWorkarounds();
 builder.ConfigureEntryNextWorkaround();

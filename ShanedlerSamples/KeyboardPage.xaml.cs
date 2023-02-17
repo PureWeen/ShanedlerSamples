@@ -1,3 +1,4 @@
+using Maui.Workarounds;
 using Microsoft.Maui.Platform;
 
 namespace ShanedlerSamples;

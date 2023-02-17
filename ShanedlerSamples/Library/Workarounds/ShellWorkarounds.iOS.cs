@@ -10,7 +10,7 @@ using ObjCRuntime;
 using System.Reflection;
 using UIKit;
 
-namespace Shanedler.Workarounds
+namespace Maui.Workarounds
 {
     // Fix Thank you to https://github.com/vhugogarcia
     public class ShellWorkarounds : ShellRenderer

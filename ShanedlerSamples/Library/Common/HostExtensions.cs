@@ -6,16 +6,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Shanedler.Workarounds
+namespace Maui.Workarounds
 {
     public static partial class HostExtensions
     {
-        public static MauiAppBuilder ConfigureShanedler(this MauiAppBuilder builder)
+        public static MauiAppBuilder ConfigureMauiWorkarounds(this MauiAppBuilder builder)
         {
-            return builder.ConfigureShanedler(true);
+            return builder.ConfigureMauiWorkarounds(true);
         }
 
-        public static MauiAppBuilder ConfigureShanedler(this MauiAppBuilder builder, bool addAllWorkaround)
+        public static MauiAppBuilder ConfigureMauiWorkarounds(this MauiAppBuilder builder, bool addAllWorkaround)
         {
 #if ANDROID
             PageHandler.PlatformViewFactory = (h) => new NotifyingContentViewGroup(h.Context);

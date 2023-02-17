@@ -8,12 +8,17 @@ using System.Text;
 using System.Threading.Tasks;
 using UIKit;
 
-namespace Shanedler.Workarounds
+namespace Maui.Workarounds
 {
     internal class CustomEntryHandler : EntryHandler
     {
         protected override bool OnShouldReturn(UITextField view)
         {
+            view.InvokeOnMainThread(() =>
+            {
+
+            });
+
             KeyboardAutoManager.GoToNextResponderOrResign(view);
             VirtualView?.Completed();
             return false;

@@ -2,7 +2,7 @@
 using Microsoft.UI.Xaml;
 using System;
 
-namespace Shanedler.Workarounds
+namespace Maui.Workarounds
 {
     public static partial class KeyboardManager
     {

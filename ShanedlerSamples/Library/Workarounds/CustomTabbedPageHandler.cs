@@ -14,7 +14,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Shanedler.Workarounds
+namespace Maui.Workarounds
 {
     internal class CustomTabbedPageHandler : TabbedViewHandler
     {
