@@ -1,6 +1,5 @@
 ﻿using Microsoft.Maui.Controls;
 using Microsoft.Maui.Handlers;
-using ShanedlerSamples.Library.Workarounds;
 using System;
 using System.Collections.Generic;
 using System.Linq;

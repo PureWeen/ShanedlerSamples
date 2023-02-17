@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ShanedlerSamples.Library.Workarounds
+namespace Maui.FixesAndWorkarounds
 {
     internal class WorkaroundFrameRenderer : FrameRenderer, IViewHandler
     {

@@ -1,4 +1,5 @@
-﻿using Microsoft.Maui.Platform;
+﻿#if ANDROID
+using Microsoft.Maui.Platform;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,3 +43,4 @@ namespace Maui.FixesAndWorkarounds.Library.Common
         }
     }
 }
+#endif
