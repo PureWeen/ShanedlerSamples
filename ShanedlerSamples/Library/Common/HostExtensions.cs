@@ -1,5 +1,6 @@
 ﻿using Microsoft.Maui.Controls;
 using Microsoft.Maui.Handlers;
+using ShanedlerSamples.Library.Workarounds;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +22,7 @@ namespace Maui.FixesAndWorkarounds
             builder.ConfigureMauiHandlers(handlers =>
             {
                 handlers.AddHandler(typeof(Page), typeof(WorkaroundPageHandler));
+                handlers.AddHandler(typeof(Frame), typeof(WorkaroundFrameRenderer));
             });
 #endif
 
