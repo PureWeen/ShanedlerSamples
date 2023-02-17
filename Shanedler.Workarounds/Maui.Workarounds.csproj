@@ -18,7 +18,7 @@
 
 		<!-- NuGet -->
 		<Authors>PureWeen</Authors>
-		<!--<Copyright>Copyright © PureWeen and contributors</Copyright>-->
+		<Copyright>Copyright © PureWeen and contributors</Copyright>
 		<IsPackable>True</IsPackable>
 		<PackageProjectUrl>https://github.com/PureWeen/ShanedlerSamples</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/PureWeen/ShanedlerSamples</RepositoryUrl>
