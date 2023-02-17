@@ -8,6 +8,7 @@
 - iOS Toolbar back button isn't updating correctly
 - TitleView on iOS fixes
 - iOS will navigate to the next field now when you've set it to next.
+- Modal measuring when you push a modal and type in a box
 
 ### Features added
 - Android, tapping off into nothingess closes keyboard (need to use included behaviors for this to work)
