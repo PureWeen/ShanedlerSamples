@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Maui.Workarounds
+namespace Maui.FixesAndWorkarounds
 {
     internal static class EntryWorkarounds
     {

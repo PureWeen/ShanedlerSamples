@@ -8,7 +8,7 @@ using Microsoft.Maui.Platform;
 using Android.Widget;
 using IOnGestureListener = Android.Views.GestureDetector.IOnGestureListener;
 
-namespace Maui.Workarounds
+namespace Maui.FixesAndWorkarounds
 {
     public partial class TapToCloseBehavior
     {

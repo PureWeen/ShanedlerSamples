@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UIKit;
 
-namespace Maui.Workarounds.Library.Common
+namespace Maui.FixesAndWorkarounds.Library.Common
 {
     internal static partial class Extensions
     {

@@ -1,6 +1,6 @@
 using System;
 
-namespace Maui.Workarounds
+namespace Maui.FixesAndWorkarounds
 {
     public static partial class KeyboardManager
     {

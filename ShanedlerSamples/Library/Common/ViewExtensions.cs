@@ -1,5 +1,5 @@
 ﻿#nullable enable
-using Maui.Workarounds;
+using Maui.FixesAndWorkarounds;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,7 +22,7 @@ namespace Microsoft.Maui.Controls
     }
 }
 
-namespace Maui.Workarounds.Library.Common
+namespace Maui.FixesAndWorkarounds.Library.Common
 {
     internal static partial class Extensions
     {

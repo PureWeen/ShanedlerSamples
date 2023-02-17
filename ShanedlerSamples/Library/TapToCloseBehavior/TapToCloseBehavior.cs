@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Maui.Workarounds
+namespace Maui.FixesAndWorkarounds
 {
     public partial class TapToCloseBehavior : PlatformBehavior<View>
     {

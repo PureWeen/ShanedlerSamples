@@ -11,7 +11,7 @@ using Google.Android.Material.TextField;
 using Microsoft.Maui.Platform;
 using AView = Android.Views.View;
 
-namespace Maui.Workarounds
+namespace Maui.FixesAndWorkarounds
 {
     public static partial class KeyboardManager
     {

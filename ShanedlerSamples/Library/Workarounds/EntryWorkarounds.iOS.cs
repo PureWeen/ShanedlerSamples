@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UIKit;
 
-namespace Maui.Workarounds
+namespace Maui.FixesAndWorkarounds
 {
     internal class CustomEntryHandler : EntryHandler
     {

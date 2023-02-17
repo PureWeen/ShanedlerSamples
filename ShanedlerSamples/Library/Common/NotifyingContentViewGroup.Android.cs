@@ -12,7 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AView = Android.Views.View;
 
-namespace Maui.Workarounds
+namespace Maui.FixesAndWorkarounds
 {
     public class NotifyingContentViewGroup : ContentViewGroup
     {

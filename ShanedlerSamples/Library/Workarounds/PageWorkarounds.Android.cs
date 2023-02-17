@@ -12,7 +12,7 @@ using AndroidX.Core.View;
 using Android.Widget;
 using Android.Runtime;
 
-namespace Maui.Workarounds
+namespace Maui.FixesAndWorkarounds
 {
     internal class WorkaroundPageHandler : PageHandler
     {

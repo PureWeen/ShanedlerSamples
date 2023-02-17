@@ -1,4 +1,4 @@
-﻿using Maui.Workarounds;
+﻿using Maui.FixesAndWorkarounds;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Maui.Hosting;
 using System.Diagnostics.CodeAnalysis;
