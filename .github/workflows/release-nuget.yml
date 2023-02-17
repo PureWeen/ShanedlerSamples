@@ -26,12 +26,12 @@ jobs:
         id: get_version
         uses: battila7/get-version-action@v2
       - name: Restore dependencies
-        run: dotnet restore Shanedler.Workarounds\Maui.Workarounds.csproj
+        run: dotnet restore Shanedler.Workarounds\PureWeen.Maui.Workarounds.csproj
       - name: Build
-        run: dotnet build Shanedler.Workarounds\Maui.Workarounds.csproj -c Release /p:Version=${{ steps.get_version.outputs.version-without-v }}
+        run: dotnet build Shanedler.Workarounds\PureWeen.Maui.Workarounds.csproj -c Release /p:Version=${{ steps.get_version.outputs.version-without-v }}
       - name: Pack
-        run: dotnet pack Shanedler.Workarounds\Maui.Workarounds.csproj -c Release /p:Version=${{ steps.get_version.outputs.version-without-v }} --no-build --output .
+        run: dotnet pack Shanedler.Workarounds\PureWeen.Maui.Workarounds.csproj -c Release /p:Version=${{ steps.get_version.outputs.version-without-v }} --no-build --output .
       - name: Push
-        run: dotnet nuget push Maui.FixesAndWorkarounds.${{ steps.get_version.outputs.version-without-v }}.nupkg -s https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_API_KEY }}
+        run: dotnet nuget push PureWeen.Maui.FixesAndWorkarounds.${{ steps.get_version.outputs.version-without-v }}.nupkg -s https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_API_KEY }}
         env:
           GITHUB_TOKEN: ${{ secrets.NUGET_API_KEY }}
