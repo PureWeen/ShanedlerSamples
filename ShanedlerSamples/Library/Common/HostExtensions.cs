@@ -18,9 +18,11 @@ namespace Maui.Workarounds
         public static MauiAppBuilder ConfigureMauiWorkarounds(this MauiAppBuilder builder, bool addAllWorkaround)
         {
 #if ANDROID
-            PageHandler.PlatformViewFactory = (h) => new NotifyingContentViewGroup(h.Context);
+            builder.ConfigureMauiHandlers(handlers =>
+            {
+                handlers.AddHandler(typeof(Page), typeof(WorkaroundPageHandler));
+            });
 #endif
-
 
             if (addAllWorkaround)
             {
