@@ -33,12 +33,17 @@
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 		<DebugType>portable</DebugType>
-		<PackageReadmeFile>../README.md</PackageReadmeFile>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<!--<PackageIcon>icon.png</PackageIcon>-->
 	</PropertyGroup>
 
 	<ItemGroup>
 		<Compile Include="..\ShanedlerSamples\Library\**\*.cs" />
 	</ItemGroup>
-
+	<ItemGroup>
+	    <None Include="../README.md"
+		  PackagePath="README.md"
+		  Pack="true" />
+	 </ItemGroup>
+  </ItemGroup>
 </Project>
