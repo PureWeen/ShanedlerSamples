@@ -41,9 +41,6 @@
 		<Compile Include="..\ShanedlerSamples\Library\**\*.cs" />
 	</ItemGroup>
 	<ItemGroup>
-	    <None Include="../README.md"
-		  PackagePath="README.md"
-		  Pack="true" />
-	 </ItemGroup>
-  </ItemGroup>
+		<None Include="../README.md" PackagePath="README.md" Pack="true" />
+ 	</ItemGroup>
 </Project>
