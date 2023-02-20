@@ -41,6 +41,7 @@ namespace Maui.FixesAndWorkarounds
 		CustomShellSectionRenderer _customShellSectionRenderer;
 		public CustomShellSectionRootRenderer(ShellSection shellSection, IShellContext shellContext, CustomShellSectionRenderer customShellSectionRenderer) : base(shellSection, shellContext)
 		{
+			_customShellSectionRenderer = customShellSectionRenderer;
 		}
 
 		public override void ViewDidLoad()
