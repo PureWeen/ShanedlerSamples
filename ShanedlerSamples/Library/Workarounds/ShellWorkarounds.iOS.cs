@@ -25,10 +25,10 @@ namespace Maui.FixesAndWorkarounds
 			return (Tracker = new CustomShellPageRendererTracker(this));
 		}
 
-		protected override IShellNavBarAppearanceTracker CreateNavBarAppearanceTracker()
-		{
-			return new NoLineAppearanceTracker();
-		}
+		//protected override IShellNavBarAppearanceTracker CreateNavBarAppearanceTracker()
+		//{
+		//	return new NoLineAppearanceTracker();
+		//}
 
 		protected override IShellSectionRenderer CreateShellSectionRenderer(ShellSection shellSection)
 		{
