@@ -98,7 +98,8 @@ namespace Maui.FixesAndWorkarounds
 					View = (UIView)notification.Object;
 					RootController =
 						View.FindResponder<ContainerViewController>()?.View ??
-						View.FindResponder<ShellSectionRootRenderer>()?.View;
+						(Shell.Current.CurrentPage.Handler as IPlatformViewHandler).ContainerView ??
+						(Shell.Current.CurrentPage.Handler as IPlatformViewHandler).PlatformView;
 
 					await SetUpTextEdit();
 				}
@@ -110,7 +111,8 @@ namespace Maui.FixesAndWorkarounds
 				{
 					View = (UIView)notification.Object;
 					RootController = View.FindResponder<ContainerViewController>()?.View ??
-									View.FindResponder<ShellSectionRootRenderer>()?.View;
+						(Shell.Current.CurrentPage.Handler as IPlatformViewHandler).ContainerView ??
+						(Shell.Current.CurrentPage.Handler as IPlatformViewHandler).PlatformView;
 
 					await SetUpTextEdit();
 				}
@@ -245,7 +247,8 @@ namespace Maui.FixesAndWorkarounds
 			CursorRect = null;
 
 			RootController = View.FindResponder<ContainerViewController>()?.View ??
-						View.FindResponder<ShellSectionRootRenderer>()?.View;
+						(Shell.Current.CurrentPage.Handler as IPlatformViewHandler).ContainerView ??
+						(Shell.Current.CurrentPage.Handler as IPlatformViewHandler).PlatformView;
 
 			// the cursor needs a small amount of time to update the position
 			await Task.Delay(5);
