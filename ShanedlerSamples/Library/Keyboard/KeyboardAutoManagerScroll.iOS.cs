@@ -12,6 +12,7 @@ using UIKit;
 using Microsoft.Maui.Controls.Handlers.Compatibility;
 using Microsoft.Maui.Controls.Platform;
 using System.Reflection;
+using System.ComponentModel;
 
 namespace Maui.FixesAndWorkarounds
 {
@@ -40,17 +41,26 @@ namespace Maui.FixesAndWorkarounds
 		protected override void OnElementChanged(ElementChangedEventArgs<TableView> e)
 		{
 			base.OnElementChanged(e);
+			RemoveKeyboard();
+		}
 
-			if (!_insetTrackerGone)
+		protected override void OnElementPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			base.OnElementPropertyChanged(sender, e);
+			RemoveKeyboard();
+		}
+
+		void RemoveKeyboard()
+		{
+			if (_insetTrackerGone)
 				return;
 
-			_insetTrackerGone = true;
-
-			var property = this.GetType().GetField("_insetTracker", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
-			var result = property.GetValue(this) as IDisposable;
+			var property = typeof(TableViewRenderer).GetField("_insetTracker", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+			var result = property?.GetValue(this) as IDisposable;
 
 			if (result != null)
 			{
+				_insetTrackerGone = true;
 				result.Dispose();
 			}
 		}

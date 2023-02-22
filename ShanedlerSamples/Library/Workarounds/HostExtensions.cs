@@ -30,8 +30,8 @@ namespace Maui.FixesAndWorkarounds
 
 			ListViewRenderer.Mapper.Add("RemoveKeyboardInset", (handler, view) =>
 			{
-				var property = handler.GetType().GetField("_insetTracker", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
-				var result = property.GetValue(handler) as IDisposable;
+				var property = typeof(ListViewRenderer).GetField("_insetTracker", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+				var result = property?.GetValue(handler) as IDisposable;
 
 				if (result != null)
 				{
