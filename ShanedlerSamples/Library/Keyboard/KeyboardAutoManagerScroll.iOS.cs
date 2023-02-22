@@ -9,6 +9,9 @@ using Microsoft.Maui.Controls.Platform.Compatibility;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Platform;
 using UIKit;
+using Microsoft.Maui.Controls.Handlers.Compatibility;
+using Microsoft.Maui.Controls.Platform;
+using System.Reflection;
 
 namespace Maui.FixesAndWorkarounds
 {
@@ -22,6 +25,34 @@ namespace Maui.FixesAndWorkarounds
 		// Save the scrolling for KeyboardAutoManagerScroll.cs
 		public override void ScrollRectToVisible(CGRect rect, bool animated)
 		{
+		}
+	}
+
+	public class CustomTableViewRenderer : TableViewRenderer
+	{
+		bool _insetTrackerGone;
+
+		public CustomTableViewRenderer()
+		{
+
+		}
+
+		protected override void OnElementChanged(ElementChangedEventArgs<TableView> e)
+		{
+			base.OnElementChanged(e);
+
+			if (!_insetTrackerGone)
+				return;
+
+			_insetTrackerGone = true;
+
+			var property = this.GetType().GetField("_insetTracker", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+			var result = property.GetValue(this) as IDisposable;
+
+			if (result != null)
+			{
+				result.Dispose();
+			}
 		}
 	}
 

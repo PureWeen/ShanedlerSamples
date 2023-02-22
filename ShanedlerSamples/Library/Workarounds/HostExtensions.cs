@@ -1,7 +1,10 @@
 ﻿
 using Maui.FixesAndWorkarounds.Library.Common;
+using Microsoft.Maui.Controls;
+using Microsoft.Maui.Controls.Handlers.Compatibility;
 using Microsoft.Maui.Handlers;
 using Microsoft.Maui.LifecycleEvents;
+using System.Reflection;
 
 namespace Maui.FixesAndWorkarounds
 {
@@ -22,7 +25,19 @@ namespace Maui.FixesAndWorkarounds
 
 			builder.ConfigureMauiHandlers(handlers =>
 			{
-				handlers.AddHandler<Entry, CustomEntryHandler>();
+				handlers.AddHandler<TableView, CustomTableViewRenderer>();
+			});
+
+			ListViewRenderer.Mapper.Add("RemoveKeyboardInset", (handler, view) =>
+			{
+				var property = handler.GetType().GetField("_insetTracker", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+				var result = property.GetValue(handler) as IDisposable;
+
+				if (result != null)
+				{
+					result.Dispose();
+					property.SetValue(handler, null);
+				}
 			});
 
 			builder.ConfigureLifecycleEvents(events =>
