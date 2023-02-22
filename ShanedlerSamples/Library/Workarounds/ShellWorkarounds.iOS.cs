@@ -1,6 +1,7 @@
 ﻿#if IOS || MACCATALYST
 using CoreGraphics;
 using Foundation;
+using Maui.FixesAndWorkarounds.Library.Common;
 using Microsoft.Maui;
 using Microsoft.Maui.Controls.Handlers.Compatibility;
 using Microsoft.Maui.Controls.Internals;
@@ -165,12 +166,12 @@ namespace Maui.FixesAndWorkarounds
 			if (!ToolbarReady())
 				return;
 
-			if (ViewController == null || ViewController.NavigationItem == null)
+			if (ViewController?.NavigationItem is null)
 			{
 				return;
 			}
 
-			var titleView = Shell.GetTitleView(Page);
+			var titleView = Shell.GetTitleView(Page) ?? Shell.GetTitleView(Context.Shell);
 			if (titleView == null)
 			{
 				var view = ViewController.NavigationItem.TitleView;
@@ -194,7 +195,7 @@ namespace Maui.FixesAndWorkarounds
 		{
 			base.UpdateToolbarItems();
 
-			if (ViewController?.NavigationItem == null)
+			if (ViewController?.NavigationItem is null)
 			{
 				return;
 			}
@@ -263,35 +264,247 @@ namespace Maui.FixesAndWorkarounds
 		}
 	}
 
+	//public class CustomTitleViewContainer : UIContainerView
+	//{
+	//    public CustomTitleViewContainer(View view) : base(view)
+	//    {
+	//        TranslatesAutoresizingMaskIntoConstraints = false;
+	//    }
+
+	//    public override CGSize IntrinsicContentSize => UILayoutFittingExpandedSize;
+	//}
+
+	//public class NoLineAppearanceTracker : IShellNavBarAppearanceTracker
+	//{
+	//    public void Dispose() { }
+
+	//    public void ResetAppearance(UINavigationController controller) { }
+
+	//    public void SetAppearance(UINavigationController controller, ShellAppearance appearance)
+	//    {
+	//        var navBar = controller.NavigationBar;
+	//        var navigationBarAppearance = new UINavigationBarAppearance();
+	//        navigationBarAppearance.ConfigureWithOpaqueBackground();
+	//        navigationBarAppearance.ShadowColor = UIColor.Clear;
+	//        navigationBarAppearance.BackgroundColor = UIColor.White; // Set the background color you want on the Shell NavBar
+	//        navBar.ScrollEdgeAppearance = navBar.StandardAppearance = navigationBarAppearance;
+	//    }
+
+	//    public void SetHasShadow(UINavigationController controller, bool hasShadow) { }
+
+	//    public void UpdateLayout(UINavigationController controller) { }
+	//}
+
 	public class CustomTitleViewContainer : UIContainerView
 	{
 		public CustomTitleViewContainer(View view) : base(view)
 		{
-			TranslatesAutoresizingMaskIntoConstraints = false;
+			MatchHeight = true;
+
+			if (OperatingSystem.IsIOSVersionAtLeast(11) || OperatingSystem.IsTvOSVersionAtLeast(11))
+			{
+				TranslatesAutoresizingMaskIntoConstraints = false;
+			}
+			else
+			{
+				TranslatesAutoresizingMaskIntoConstraints = true;
+				AutoresizingMask = UIViewAutoresizing.FlexibleHeight | UIViewAutoresizing.FlexibleWidth;
+			}
+		}
+
+		public override CGRect Frame
+		{
+			get => base.Frame;
+			set
+			{
+				if (!(OperatingSystem.IsIOSVersionAtLeast(11) || OperatingSystem.IsTvOSVersionAtLeast(11)) && Superview != null)
+				{
+					value.Y = Superview.Bounds.Y;
+					value.Height = Superview.Bounds.Height;
+				}
+
+				base.Frame = value;
+			}
+		}
+
+		public override void LayoutSubviews()
+		{
+			if (Height == null || Height == 0)
+			{
+				UpdateFrame(Superview);
+			}
+
+			base.LayoutSubviews();
+		}
+
+		public override void WillMoveToSuperview(UIView newSuper)
+		{
+			UpdateFrame(newSuper);
+			base.WillMoveToSuperview(newSuper);
+		}
+
+		void UpdateFrame(UIView newSuper)
+		{
+			if (newSuper is not null && newSuper.Bounds != CGRect.Empty)
+			{
+				if (!(OperatingSystem.IsIOSVersionAtLeast(11) || OperatingSystem.IsTvOSVersionAtLeast(11)))
+					Frame = new CGRect(Frame.X, newSuper.Bounds.Y, Frame.Width, newSuper.Bounds.Height);
+
+				Height = newSuper.Bounds.Height;
+			}
 		}
 
 		public override CGSize IntrinsicContentSize => UILayoutFittingExpandedSize;
+
+		public override CGSize SizeThatFits(CGSize size)
+		{
+			return size;
+		}
 	}
 
-	public class NoLineAppearanceTracker : IShellNavBarAppearanceTracker
+	public class UIContainerView : UIView
 	{
-		public void Dispose() { }
+		readonly View _view;
+		IPlatformViewHandler _renderer;
+		UIView _platformView;
+		bool _disposed;
+		private double _measuredHeight;
 
-		public void ResetAppearance(UINavigationController controller) { }
+		internal event EventHandler HeaderSizeChanged;
 
-		public void SetAppearance(UINavigationController controller, ShellAppearance appearance)
+		public UIContainerView(View view)
 		{
-			var navBar = controller.NavigationBar;
-			var navigationBarAppearance = new UINavigationBarAppearance();
-			navigationBarAppearance.ConfigureWithOpaqueBackground();
-			navigationBarAppearance.ShadowColor = UIColor.Clear;
-			navigationBarAppearance.BackgroundColor = UIColor.White; // Set the background color you want on the Shell NavBar
-			navBar.ScrollEdgeAppearance = navBar.StandardAppearance = navigationBarAppearance;
+			_view = view;
+
+			UpdatePlatformView();
+			ClipsToBounds = true;
+			MeasuredHeight = double.NaN;
+			Margin = new Thickness(0);
 		}
 
-		public void SetHasShadow(UINavigationController controller, bool hasShadow) { }
+		internal void UpdatePlatformView()
+		{
+			_renderer = _view.ToHandler(_view.FindMauiContext());
+			_platformView = _renderer.ContainerView ?? _renderer.PlatformView;
 
-		public void UpdateLayout(UINavigationController controller) { }
+			if (_platformView.Superview != this)
+				AddSubview(_platformView);
+		}
+
+		bool IsPlatformViewValid()
+		{
+			if (View == null || _platformView == null || _renderer == null)
+				return false;
+
+			return _platformView.Superview == this;
+		}
+
+		internal View View => _view;
+
+		internal bool MatchHeight { get; set; }
+
+		internal double MeasuredHeight
+		{
+			get
+			{
+				if (MatchHeight && Height != null)
+					return Height.Value;
+
+				return _measuredHeight;
+			}
+
+			private set => _measuredHeight = value;
+		}
+
+		internal double? Height
+		{
+			get;
+			set;
+		}
+
+		internal double? Width
+		{
+			get;
+			set;
+		}
+
+		public virtual Thickness Margin
+		{
+			get;
+		}
+
+		private protected void OnHeaderSizeChanged()
+		{
+			HeaderSizeChanged?.Invoke(this, EventArgs.Empty);
+		}
+
+		public override CGSize SizeThatFits(CGSize size)
+		{
+			var measuredSize = (_view as IView).Measure(size.Width, size.Height);
+
+			if (Height != null && MatchHeight)
+			{
+				MeasuredHeight = Height.Value;
+			}
+			else
+			{
+				MeasuredHeight = measuredSize.Height;
+			}
+
+			return new CGSize(size.Width, MeasuredHeight);
+		}
+
+		public override void WillRemoveSubview(UIView uiview)
+		{
+			Disconnect();
+			base.WillRemoveSubview(uiview);
+		}
+
+		public override void LayoutSubviews()
+		{
+			if (!IsPlatformViewValid())
+				return;
+
+			var height = Height ?? MeasuredHeight;
+			var width = Width ?? Frame.Width;
+
+			if (double.IsNaN(height))
+				return;
+
+			var platformFrame = new Rect(0, 0, width, height);
+
+
+			if (MatchHeight)
+			{
+				(_view as IView).Measure(width, height);
+			}
+
+			(_view as IView).Arrange(platformFrame);
+		}
+
+		internal void Disconnect()
+		{
+		}
+
+		protected override void Dispose(bool disposing)
+		{
+			if (_disposed)
+				return;
+
+			if (disposing)
+			{
+				Disconnect();
+
+				if (_platformView.Superview == this)
+					_platformView.RemoveFromSuperview();
+
+				_renderer = null;
+				_platformView = null;
+				_disposed = true;
+			}
+
+			base.Dispose(disposing);
+		}
 	}
 }
 #endif
