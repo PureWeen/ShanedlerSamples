@@ -30,10 +30,11 @@ namespace Maui.FixesAndWorkarounds
                 builder.ConfigureShellWorkarounds();
                 builder.ConfigureTabbedPageWorkarounds();
                 builder.ConfigureEntryNextWorkaround();
+                builder.ConfigureKeyboardAutoScroll();
 #if ANDROID
                 builder.ConfigureEntryFocusOpensKeyboard();
 #endif
-            }
+			}
 
             return builder;
         }

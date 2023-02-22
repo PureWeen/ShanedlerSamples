@@ -42,5 +42,6 @@
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="../README.md" PackagePath="README.md" Pack="true" />
- 	</ItemGroup>
+		<None Include="../THIRD-PARTY-NOTICES.txt" PackagePath="THIRD-PARTY-NOTICES.txt" Pack="true" />
+	</ItemGroup>
 </Project>
