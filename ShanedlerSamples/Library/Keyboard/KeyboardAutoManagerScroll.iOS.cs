@@ -88,6 +88,21 @@ namespace Maui.FixesAndWorkarounds
 		public static NSObject? TextFieldToken = null;
 		static NSObject? TextViewToken = null;
 
+
+		static UIView? FindRootView(UIView startingPoint)
+		{
+			var rootView = startingPoint.FindResponder<ContainerViewController>()?.View;
+			if (rootView is not null)
+				return rootView;
+
+			var firstViewController = View.FindResponder<UIViewController>();
+
+			if (firstViewController.ViewIfLoaded is not null)
+				return firstViewController.ViewIfLoaded.FindDescendantView<Microsoft.Maui.Platform.ContentView>();
+
+			return null;
+		}
+
 		// Set up the observers for the keyboard and the UITextField/UITextView
 		internal static void Init()
 		{
@@ -96,11 +111,7 @@ namespace Maui.FixesAndWorkarounds
 				if (notification.Object is not null)
 				{
 					View = (UIView)notification.Object;
-					RootController =
-						View.FindResponder<ContainerViewController>()?.View ??
-						(Shell.Current.CurrentPage.Handler as IPlatformViewHandler).ContainerView ??
-						(Shell.Current.CurrentPage.Handler as IPlatformViewHandler).PlatformView;
-
+					RootController = FindRootView(View);
 					await SetUpTextEdit();
 				}
 			});
@@ -110,9 +121,7 @@ namespace Maui.FixesAndWorkarounds
 				if (notification.Object is not null)
 				{
 					View = (UIView)notification.Object;
-					RootController = View.FindResponder<ContainerViewController>()?.View ??
-						(Shell.Current.CurrentPage.Handler as IPlatformViewHandler).ContainerView ??
-						(Shell.Current.CurrentPage.Handler as IPlatformViewHandler).PlatformView;
+					RootController = FindRootView(View);
 
 					await SetUpTextEdit();
 				}
@@ -246,9 +255,7 @@ namespace Maui.FixesAndWorkarounds
 
 			CursorRect = null;
 
-			RootController = View.FindResponder<ContainerViewController>()?.View ??
-						(Shell.Current.CurrentPage.Handler as IPlatformViewHandler).ContainerView ??
-						(Shell.Current.CurrentPage.Handler as IPlatformViewHandler).PlatformView;
+			RootController = FindRootView(View);
 
 			// the cursor needs a small amount of time to update the position
 			await Task.Delay(5);

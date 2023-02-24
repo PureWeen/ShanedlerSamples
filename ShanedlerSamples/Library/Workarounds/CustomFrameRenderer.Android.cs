@@ -10,11 +10,12 @@ using System.Threading.Tasks;
 
 namespace Maui.FixesAndWorkarounds
 {
-    internal class WorkaroundFrameRenderer : FrameRenderer, IViewHandler
+    internal class CustomFrameRenderer : FrameRenderer, IViewHandler
     {
         const double LegacyMinimumFrameSize = 20;
+		const int FrameBorderThickness = 3;
 
-        public WorkaroundFrameRenderer(Context context) : base(context)
+		public CustomFrameRenderer(Context context) : base(context)
         {
         }
 
@@ -62,6 +63,23 @@ namespace Maui.FixesAndWorkarounds
 
             return size;
         }
-    }
+
+		protected override void OnMeasure(int widthMeasureSpec, int heightMeasureSpec)
+		{
+			if (Element?.Handler is IPlatformViewHandler pvh &&
+				Element is IContentView cv)
+			{
+				var borderThickness = (Element.BorderColor.IsNotDefault() ? FrameBorderThickness : 0) * 2;
+
+				var size = pvh.MeasureVirtualView(
+					widthMeasureSpec - borderThickness,
+					heightMeasureSpec - borderThickness,
+					cv.CrossPlatformMeasure);
+				SetMeasuredDimension((int)size.Width + borderThickness, (int)size.Height + borderThickness);
+			}
+			else
+				base.OnMeasure(widthMeasureSpec, heightMeasureSpec);
+		}
+	}
 }
 #endif

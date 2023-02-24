@@ -17,15 +17,15 @@ namespace Maui.FixesAndWorkarounds
 
         public static MauiAppBuilder ConfigureMauiWorkarounds(this MauiAppBuilder builder, bool addAllWorkaround)
         {
-#if ANDROID
             builder.ConfigureMauiHandlers(handlers =>
-            {
+			{
+#if ANDROID
                 handlers.AddHandler(typeof(Page), typeof(WorkaroundPageHandler));
-                handlers.AddHandler(typeof(Frame), typeof(WorkaroundFrameRenderer));
-            });
 #endif
+				handlers.AddHandler(typeof(Frame), typeof(CustomFrameRenderer));
+            });
 
-            if (addAllWorkaround)
+				if (addAllWorkaround)
             {
                 builder.ConfigureShellWorkarounds();
                 builder.ConfigureTabbedPageWorkarounds();
