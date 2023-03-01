@@ -25,7 +25,7 @@ namespace Maui.FixesAndWorkarounds
 				handlers.AddHandler(typeof(Frame), typeof(CustomFrameRenderer));
             });
 
-				if (addAllWorkaround)
+			if (addAllWorkaround)
             {
                 builder.ConfigureShellWorkarounds();
                 builder.ConfigureTabbedPageWorkarounds();

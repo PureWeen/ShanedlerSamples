@@ -89,7 +89,7 @@ namespace Maui.FixesAndWorkarounds
 		static NSObject? TextViewToken = null;
 
 
-		static UIView? FindRootView(UIView startingPoint)
+		internal static UIView? FindRootView(UIView startingPoint)
 		{
 			var rootView = startingPoint.FindResponder<ContainerViewController>()?.View;
 			if (rootView is not null)
