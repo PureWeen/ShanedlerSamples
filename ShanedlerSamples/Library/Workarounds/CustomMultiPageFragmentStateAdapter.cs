@@ -10,13 +10,13 @@ using AView = Android.Views.View;
 
 namespace Microsoft.Maui.Controls.Platform
 {
-    internal class MultiPageFragmentStateAdapter<T> : FragmentStateAdapter where T : Page
+    internal class CustomMultiPageFragmentStateAdapter<T> : FragmentStateAdapter where T : Page
     {
         MultiPage<T> _page;
         readonly IMauiContext _context;
         List<AdapterItemKey> keys = new List<AdapterItemKey>();
 
-        public MultiPageFragmentStateAdapter(
+        public CustomMultiPageFragmentStateAdapter(
             MultiPage<T> page, FragmentManager fragmentManager, IMauiContext context)
             : base(fragmentManager, context.GetActivity().Lifecycle)
         {
