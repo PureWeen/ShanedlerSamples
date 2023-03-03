@@ -19,6 +19,7 @@
 ### Features added
 - Android, tapping off into nothingess closes keyboard (need to use included behaviors for this to work)
 - FocusAndOpenKeyboard if you want to open the keyboard
+- ShellContentDI will always consult the DI system for page so if it's set to transient it should create a new page every single time
 
 #### All workarounds
 
