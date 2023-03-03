@@ -1,30 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Maui.FixesAndWorkarounds
 {
-    public class ShellContentDI : ShellContent, IShellContentController
-    {
-        bool created = false;
+	// https://github.com/dotnet/maui/issues/9300
+	public class ShellContentDI : ShellContent
+	{
+		Shell Shell => Parent?.Parent?.Parent as Shell;
+		ShellContent CurrentShellContent => Shell?.CurrentItem?.CurrentItem?.CurrentItem;
 
-        protected override void OnDisappearing()
-        {
-            base.OnDisappearing();
-            created = false;
-        }
+		protected override void OnAppearing()
+		{
+			base.OnAppearing();
+			Shell.Navigated -= OnShellNavigated;
+			Shell.Navigated += OnShellNavigated;
+		}
 
-        Page IShellContentController.GetOrCreateContent()
-        {
-            if (created && Content is Page createdPage)
-                return createdPage;
+		private void OnShellNavigated(object sender, ShellNavigatedEventArgs e)
+		{
+			if (this != CurrentShellContent)
+			{
+				var property = typeof(ShellContent)
+						.GetProperty("ContentCache", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
 
-            created = true;
-            var page = (Page)Routing.GetOrCreateContent(this.Route, Parent.Parent.Parent.Handler.MauiContext.Services);
-            Content = page;
-            return page;
-        }
-    }
+				property.SetValue(this, null);
+				Shell.Navigated -= OnShellNavigated;
+			}
+		}
+	}
 }
