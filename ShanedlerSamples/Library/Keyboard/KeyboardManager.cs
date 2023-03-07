@@ -2,9 +2,10 @@ using System;
 
 namespace Maui.FixesAndWorkarounds
 {
-    public static partial class KeyboardManager
-    {
-        public static void HideKeyboard(this IView inputView) =>
+	public static partial class KeyboardManager
+	{
+#if ANDROID || IOS || MACCATALYST || WINDOWS
+		public static void HideKeyboard(this IView inputView) =>
             ((IPlatformViewHandler)inputView.Handler).PlatformView.HideKeyboard();
 
         public static void ShowKeyboard(this IView inputView)
@@ -23,5 +24,13 @@ namespace Maui.FixesAndWorkarounds
 
         public static bool IsSoftKeyboardVisible(this IView view) =>
             ((IPlatformViewHandler)view.Handler).PlatformView.IsSoftKeyboardVisible();
-    }
+#else
+
+		public static void HideKeyboard(this IView _) { }
+
+		public static void ShowKeyboard(this IView _) { }
+
+		public static bool IsSoftKeyboardVisible(this IView _) => false;
+#endif
+	}
 }

@@ -30,7 +30,7 @@ namespace Microsoft.Maui.Controls.Platform
 
         public override Fragment CreateFragment(int position)
         {
-            var fragment = FragmentContainer.CreateInstance(GetItemIdByPosition(position), _context);
+            var fragment = CustomFragmentContainer.CreateInstance(GetItemIdByPosition(position), _context);
             return fragment;
         }
 

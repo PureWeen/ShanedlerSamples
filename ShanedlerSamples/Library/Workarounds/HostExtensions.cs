@@ -1,7 +1,10 @@
 ﻿
 using Maui.FixesAndWorkarounds.Library.Common;
 using Microsoft.Maui.Controls;
+#if ANDROID || IOS || MACCATALYST || WINDOWS
 using Microsoft.Maui.Controls.Handlers.Compatibility;
+#endif
+
 using Microsoft.Maui.Handlers;
 using Microsoft.Maui.LifecycleEvents;
 using System.Reflection;
@@ -93,10 +96,10 @@ namespace Maui.FixesAndWorkarounds
 		{
 #if ANDROID
 
-            builder.ConfigureMauiHandlers(handlers =>
-            {
-                handlers.AddHandler<TabbedPage, CustomTabbedPageHandler>();
-            });
+			builder.ConfigureMauiHandlers(handlers =>
+			{
+				handlers.AddHandler<TabbedPage, CustomTabbedPageHandler>();
+			});
 
 #endif
 			return builder;

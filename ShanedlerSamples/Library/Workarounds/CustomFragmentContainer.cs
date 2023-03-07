@@ -10,7 +10,7 @@ using AView = Android.Views.View;
 
 namespace Microsoft.Maui.Controls.Platform
 {
-    internal class FragmentContainer : Fragment
+    internal class CustomFragmentContainer : Fragment
     {
         AView? _pageContainer;
         readonly IMauiContext _mauiContext;
@@ -18,7 +18,7 @@ namespace Microsoft.Maui.Controls.Platform
         ViewGroup? _parent;
         AdapterItemKey _adapterItemKey;
 
-        public FragmentContainer(AdapterItemKey adapterItemKey, IMauiContext mauiContext)
+        public CustomFragmentContainer(AdapterItemKey adapterItemKey, IMauiContext mauiContext)
         {
             _mauiContext = mauiContext;
             _adapterItemKey = adapterItemKey;
@@ -26,9 +26,9 @@ namespace Microsoft.Maui.Controls.Platform
 
         public Page Page => _adapterItemKey.Page;
 
-        public static FragmentContainer CreateInstance(AdapterItemKey adapterItemKey, IMauiContext mauiContext)
+        public static CustomFragmentContainer CreateInstance(AdapterItemKey adapterItemKey, IMauiContext mauiContext)
         {
-            return new FragmentContainer(adapterItemKey, mauiContext) { Arguments = new Bundle() };
+            return new CustomFragmentContainer(adapterItemKey, mauiContext) { Arguments = new Bundle() };
         }
 
         public void SetOnCreateCallback(Action<AView> callback)

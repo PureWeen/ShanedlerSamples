@@ -8,36 +8,39 @@ using System.Threading.Tasks;
 
 namespace Maui.FixesAndWorkarounds
 {
-    public static partial class HostExtensions
-    {
-        public static MauiAppBuilder ConfigureMauiWorkarounds(this MauiAppBuilder builder)
-        {
-            return builder.ConfigureMauiWorkarounds(true);
-        }
+	public static partial class HostExtensions
+	{
+		public static MauiAppBuilder ConfigureMauiWorkarounds(this MauiAppBuilder builder)
+		{
+			return builder.ConfigureMauiWorkarounds(true);
+		}
 
-        public static MauiAppBuilder ConfigureMauiWorkarounds(this MauiAppBuilder builder, bool addAllWorkaround)
-        {
-            builder.ConfigureMauiHandlers(handlers =>
+		public static MauiAppBuilder ConfigureMauiWorkarounds(this MauiAppBuilder builder, bool addAllWorkaround)
+		{
+			builder.ConfigureMauiHandlers(handlers =>
 			{
 #if ANDROID
                 handlers.AddHandler(typeof(Page), typeof(WorkaroundPageHandler));
 #endif
+
+#if ANDROID || IOS || MACCATALYST || WINDOWS
 				handlers.AddHandler(typeof(Frame), typeof(CustomFrameRenderer));
-            });
+#endif
+			});
 
 			if (addAllWorkaround)
-            {
-                builder.ConfigureShellWorkarounds();
-                builder.ConfigureTabbedPageWorkarounds();
-                builder.ConfigureEntryNextWorkaround();
-                builder.ConfigureKeyboardAutoScroll();
+			{
+				builder.ConfigureShellWorkarounds();
+				builder.ConfigureTabbedPageWorkarounds();
+				builder.ConfigureEntryNextWorkaround();
+				builder.ConfigureKeyboardAutoScroll();
 #if ANDROID
                 builder.ConfigureEntryFocusOpensKeyboard();
 #endif
 			}
 
-            return builder;
-        }
+			return builder;
+		}
 
-    }
+	}
 }
