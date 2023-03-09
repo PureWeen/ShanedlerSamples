@@ -20,7 +20,7 @@ namespace Maui.FixesAndWorkarounds
 			builder.ConfigureMauiHandlers(handlers =>
 			{
 #if ANDROID
-                handlers.AddHandler(typeof(Page), typeof(WorkaroundPageHandler));
+				handlers.AddHandler(typeof(Page), typeof(WorkaroundPageHandler));
 #endif
 
 #if ANDROID || IOS || MACCATALYST || WINDOWS
@@ -35,7 +35,7 @@ namespace Maui.FixesAndWorkarounds
 				builder.ConfigureEntryNextWorkaround();
 				builder.ConfigureKeyboardAutoScroll();
 #if ANDROID
-                builder.ConfigureEntryFocusOpensKeyboard();
+				builder.ConfigureEntryFocusOpensKeyboard();
 #endif
 			}
 

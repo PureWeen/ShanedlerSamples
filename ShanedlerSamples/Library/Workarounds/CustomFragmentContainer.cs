@@ -10,67 +10,70 @@ using AView = Android.Views.View;
 
 namespace Microsoft.Maui.Controls.Platform
 {
-    internal class CustomFragmentContainer : Fragment
-    {
-        AView? _pageContainer;
-        readonly IMauiContext _mauiContext;
-        Action<AView>? _onCreateCallback;
-        ViewGroup? _parent;
-        AdapterItemKey _adapterItemKey;
+	internal class CustomFragmentContainer : Fragment
+	{
+		AView? _pageContainer;
+		readonly IMauiContext _mauiContext;
+		Action<AView>? _onCreateCallback;
+		ViewGroup? _parent;
+		AdapterItemKey _adapterItemKey;
 
-        public CustomFragmentContainer(AdapterItemKey adapterItemKey, IMauiContext mauiContext)
-        {
-            _mauiContext = mauiContext;
-            _adapterItemKey = adapterItemKey;
-        }
+		public CustomFragmentContainer(AdapterItemKey adapterItemKey, IMauiContext mauiContext)
+		{
+			_mauiContext = mauiContext;
+			_adapterItemKey = adapterItemKey;
+		}
 
-        public Page Page => _adapterItemKey.Page;
+		public Page Page => _adapterItemKey.Page;
 
-        public static CustomFragmentContainer CreateInstance(AdapterItemKey adapterItemKey, IMauiContext mauiContext)
-        {
-            return new CustomFragmentContainer(adapterItemKey, mauiContext) { Arguments = new Bundle() };
-        }
+		public static CustomFragmentContainer CreateInstance(AdapterItemKey adapterItemKey, IMauiContext mauiContext)
+		{
+			return new CustomFragmentContainer(adapterItemKey, mauiContext) { Arguments = new Bundle() };
+		}
 
-        public void SetOnCreateCallback(Action<AView> callback)
-        {
-            _onCreateCallback = callback;
-        }
+		public void SetOnCreateCallback(Action<AView> callback)
+		{
+			_onCreateCallback = callback;
+		}
 
-        public override AView OnCreateView(LayoutInflater inflater, ViewGroup? container, Bundle? savedInstanceState)
-        {
-            _parent = container ?? _parent;
+		public override AView OnCreateView(LayoutInflater inflater, ViewGroup? container, Bundle? savedInstanceState)
+		{
+			_parent = container ?? _parent;
 
-            _pageContainer = Page.ToPlatform(_mauiContext, RequireContext(), inflater, ChildFragmentManager);
-            _adapterItemKey.SetToStableView();
-            _parent = _parent ?? (_pageContainer.Parent as ViewGroup);
-            _onCreateCallback?.Invoke(_pageContainer);
+			_pageContainer = Page.ToPlatform(_mauiContext, RequireContext(), inflater, ChildFragmentManager);
+			_adapterItemKey.SetToStableView();
+			_parent = _parent ?? (_pageContainer.Parent as ViewGroup);
+			_onCreateCallback?.Invoke(_pageContainer);
 
-            return _pageContainer;
-        }
+			return _pageContainer;
+		}
 
-        public override void OnDestroy()
-        {
-            base.OnDestroy();
-             Page?.Handler?.DisconnectHandler();
-        }
+		internal static bool InTheThrowsOfTheAdapterHack;
+		public override void OnDestroy()
+		{
+			base.OnDestroy();
 
-        public override void OnResume()
-        {
-            if (_pageContainer == null)
-                return;
+			if (!InTheThrowsOfTheAdapterHack)
+				Page?.Handler?.DisconnectHandler();
+		}
 
-            _parent = (_pageContainer.Parent as ViewGroup) ?? _parent;
-            if (_pageContainer.Parent == null && _parent != null)
-            {
-                // Re-add the view to the container if Android removed it
-                // Because we are re-using views inside OnCreateView Android
-                // will remove the "previous" view from the parent but since our
-                // "previous" view and "current" view are the same we have to re-add it
-                _parent.AddView(_pageContainer);
-            }
+		public override void OnResume()
+		{
+			if (_pageContainer == null)
+				return;
 
-            base.OnResume();
-        }
-    }
+			_parent = (_pageContainer.Parent as ViewGroup) ?? _parent;
+			if (_pageContainer.Parent == null && _parent != null)
+			{
+				// Re-add the view to the container if Android removed it
+				// Because we are re-using views inside OnCreateView Android
+				// will remove the "previous" view from the parent but since our
+				// "previous" view and "current" view are the same we have to re-add it
+				_parent.AddView(_pageContainer);
+			}
+
+			base.OnResume();
+		}
+	}
 }
 #endif

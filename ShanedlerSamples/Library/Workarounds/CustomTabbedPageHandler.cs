@@ -44,9 +44,18 @@ namespace Maui.FixesAndWorkarounds
 
 		void OnChildrenCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
 		{
-
 			var currentIndex = Element.Children.IndexOf(Element.CurrentPage);
-			_viewPager.Adapter = _previousAdapter;
+
+			try
+			{
+				CustomFragmentContainer.InTheThrowsOfTheAdapterHack = true;
+				_viewPager.Adapter = _previousAdapter;
+			}
+			finally
+			{
+				CustomFragmentContainer.InTheThrowsOfTheAdapterHack = false;
+			}
+
 			(VirtualView as BindableObject)
 				.Dispatcher.Dispatch(() =>
 				{
