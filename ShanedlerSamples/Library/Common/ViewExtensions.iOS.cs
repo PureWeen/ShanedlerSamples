@@ -1,5 +1,6 @@
 ﻿#if IOS || MACCATALYST
 #nullable enable
+using Microsoft.Maui.Platform;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,6 +54,19 @@ namespace Maui.FixesAndWorkarounds.Library.Common
 				nextResponder = nextResponder.NextResponder;
 
 				if (nextResponder is T responder)
+					return responder;
+			}
+			return null;
+		}
+
+		internal static T? FindResponder<T>(this UIViewController controller) where T : UIViewController
+		{
+			var nextResponder = controller.View as UIResponder;
+			while (nextResponder is not null)
+			{
+				nextResponder = nextResponder.NextResponder;
+
+				if (nextResponder is T responder && responder != controller)
 					return responder;
 			}
 			return null;
@@ -113,6 +127,36 @@ namespace Maui.FixesAndWorkarounds.Library.Common
 
 			else
 				newView.BecomeFirstResponder();
+		}
+		internal static T? FindTopController<T>(this UIView view) where T : UIViewController
+		{
+			var bestController = view.FindResponder<T>();
+			var tempController = bestController;
+
+			while (tempController is not null)
+			{
+				tempController = tempController.FindResponder<T>();
+
+				if (tempController is not null)
+					bestController = tempController;
+			}
+
+			return bestController;
+		}
+
+		internal static UIView? GetContainerView(this UIView? startingPoint)
+		{
+			var rootView = startingPoint?.FindResponder<ContainerViewController>()?.View;
+
+			if (rootView is not null)
+				return rootView;
+
+			var firstViewController = startingPoint?.FindTopController<UIViewController>();
+
+			if (firstViewController?.ViewIfLoaded is not null)
+				return firstViewController.ViewIfLoaded.FindDescendantView<Microsoft.Maui.Platform.ContentView>();
+
+			return null;
 		}
 	}
 }

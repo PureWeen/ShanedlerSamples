@@ -23,7 +23,7 @@ namespace Maui.FixesAndWorkarounds
 #if IOS
 			ScrollViewHandler.PlatformViewFactory = (_) =>
 			{
-				return new MauiScrollView();
+				return new WorkaroundMauiScrollView();
 			};
 
 			builder.ConfigureMauiHandlers(handlers =>
@@ -50,14 +50,11 @@ namespace Maui.FixesAndWorkarounds
 					config
 					.OnActivated((window) =>
 					 {
-						 if (KeyboardAutoManagerScroll.TextFieldToken is null)
-							 KeyboardAutoManagerScroll.Init();
+						 KeyboardAutoManagerScroll.Connect();
 					 })
 					.WillTerminate(app =>
 					{
-						// By this point if we were a multi window app, the GetWindow would be null anyway
-						app.GetWindow()?.Destroying();
-						KeyboardAutoManagerScroll.Destroy();
+						KeyboardAutoManagerScroll.Disconnect();
 					});
 				});
 			});

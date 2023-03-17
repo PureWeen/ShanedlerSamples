@@ -16,16 +16,18 @@ using System.ComponentModel;
 
 namespace Maui.FixesAndWorkarounds
 {
-	public class MauiScrollView : UIScrollView
+	public class WorkaroundMauiScrollView : UIScrollView
 	{
-		public MauiScrollView()
+		public WorkaroundMauiScrollView()
 		{
 		}
 
-		// overriding this method it does not automatically scroll large UITextFields.
-		// Save the scrolling for KeyboardAutoManagerScroll.cs
+		// overriding this method so it does not automatically scroll large UITextFields
+		// while the KeyboardAutoManagerScroll is scrolling.
 		public override void ScrollRectToVisible(CGRect rect, bool animated)
 		{
+			if (!KeyboardAutoManagerScroll.IsCurrentlyScrolling)
+				base.ScrollRectToVisible(rect, animated);
 		}
 	}
 
@@ -67,8 +69,10 @@ namespace Maui.FixesAndWorkarounds
 	}
 
 
+
 	internal static class KeyboardAutoManagerScroll
 	{
+		internal static bool IsCurrentlyScrolling;
 		static UIScrollView? LastScrollView;
 		static CGPoint StartingContentOffset;
 		static UIEdgeInsets StartingScrollIndicatorInsets;
@@ -78,169 +82,202 @@ namespace Maui.FixesAndWorkarounds
 		static readonly CGPoint InvalidPoint = new(nfloat.MaxValue, nfloat.MaxValue);
 		static double AnimationDuration = 0.25;
 		static UIView? View = null;
-		static UIView? RootController = null;
+		static UIView? ContainerView = null;
 		static CGRect? CursorRect = null;
-		static bool IsKeyboardShowing = false;
+		internal static bool IsKeyboardShowing = false;
 		static int TextViewTopDistance = 20;
 		static int DebounceCount = 0;
 		static NSObject? WillShowToken = null;
+		static NSObject? WillHideToken = null;
 		static NSObject? DidHideToken = null;
-		public static NSObject? TextFieldToken = null;
+		static NSObject? TextFieldToken = null;
 		static NSObject? TextViewToken = null;
 
-
-		internal static UIView? FindRootView(UIView startingPoint)
+		internal static void Connect()
 		{
-			var rootView = startingPoint.FindResponder<ContainerViewController>()?.View;
-			if (rootView is not null)
-				return rootView;
+			if (TextFieldToken is not null)
+				return;
 
-			var firstViewController = View.FindResponder<UIViewController>();
+			TextFieldToken = NSNotificationCenter.DefaultCenter.AddObserver(new NSString("UITextFieldTextDidBeginEditingNotification"), DidUITextBeginEditing);
 
-			if (firstViewController.ViewIfLoaded is not null)
-				return firstViewController.ViewIfLoaded.FindDescendantView<Microsoft.Maui.Platform.ContentView>();
+			TextViewToken = NSNotificationCenter.DefaultCenter.AddObserver(new NSString("UITextViewTextDidBeginEditingNotification"), DidUITextBeginEditing);
 
-			return null;
+			WillShowToken = NSNotificationCenter.DefaultCenter.AddObserver(new NSString("UIKeyboardWillShowNotification"), WillKeyboardShow);
+
+			WillHideToken = NSNotificationCenter.DefaultCenter.AddObserver(new NSString("UIKeyboardWillHideNotification"), WillHideKeyboard);
+
+			DidHideToken = NSNotificationCenter.DefaultCenter.AddObserver(new NSString("UIKeyboardDidHideNotification"), DidHideKeyboard);
 		}
 
-		// Set up the observers for the keyboard and the UITextField/UITextView
-		internal static void Init()
-		{
-			TextFieldToken = NSNotificationCenter.DefaultCenter.AddObserver(new NSString("UITextFieldTextDidBeginEditingNotification"), async (notification) =>
-			{
-				if (notification.Object is not null)
-				{
-					View = (UIView)notification.Object;
-					RootController = FindRootView(View);
-					await SetUpTextEdit();
-				}
-			});
-
-			TextViewToken = NSNotificationCenter.DefaultCenter.AddObserver(new NSString("UITextViewTextDidBeginEditingNotification"), async (notification) =>
-			{
-				if (notification.Object is not null)
-				{
-					View = (UIView)notification.Object;
-					RootController = FindRootView(View);
-
-					await SetUpTextEdit();
-				}
-			});
-
-			WillShowToken = NSNotificationCenter.DefaultCenter.AddObserver(new NSString("UIKeyboardWillShowNotification"), async (notification) =>
-			{
-				NSObject? frameSize = null;
-				NSObject? curveSize = null;
-
-				var foundFrameSize = notification.UserInfo?.TryGetValue(new NSString("UIKeyboardFrameEndUserInfoKey"), out frameSize);
-				if (foundFrameSize == true && frameSize is not null)
-				{
-					var frameSizeRect = DescriptionToCGRect(frameSize.Description);
-					if (frameSizeRect is not null)
-						KeyboardFrame = (CGRect)frameSizeRect;
-				}
-
-				var foundAnimationDuration = notification.UserInfo?.TryGetValue(new NSString("UIKeyboardAnimationDurationUserInfoKey"), out curveSize);
-				if (foundAnimationDuration == true && curveSize is not null)
-				{
-					var num = (NSNumber)NSObject.FromObject(curveSize);
-					AnimationDuration = (double)num;
-				}
-
-				if (TopViewBeginOrigin == InvalidPoint && RootController is not null)
-					TopViewBeginOrigin = new CGPoint(RootController.Frame.X, RootController.Frame.Y);
-
-				if (!IsKeyboardShowing)
-				{
-					await AdjustPositionDebounce();
-					IsKeyboardShowing = true;
-				}
-			});
-
-			DidHideToken = NSNotificationCenter.DefaultCenter.AddObserver(new NSString("UIKeyboardWillHideNotification"), (notification) =>
-			{
-				NSObject? curveSize = null;
-
-				var foundAnimationDuration = notification.UserInfo?.TryGetValue(new NSString("UIKeyboardAnimationDurationUserInfoKey"), out curveSize);
-				if (foundAnimationDuration == true && curveSize is not null)
-				{
-					var num = (NSNumber)NSObject.FromObject(curveSize);
-					AnimationDuration = (double)num;
-				}
-
-				if (LastScrollView is not null)
-				{
-					AnimateScroll(() =>
-					{
-						if (LastScrollView.ContentInset != StartingContentInsets)
-						{
-							LastScrollView.ContentInset = StartingContentInsets;
-							LastScrollView.ScrollIndicatorInsets = StartingScrollIndicatorInsets;
-						}
-
-						var superScrollView = LastScrollView;
-						while (superScrollView is not null)
-						{
-							var contentSize = new CGSize(Math.Max(superScrollView.ContentSize.Width, superScrollView.Frame.Width),
-								Math.Max(superScrollView.ContentSize.Height, superScrollView.Frame.Height));
-
-							var minY = contentSize.Height - superScrollView.Frame.Height;
-							if (minY < superScrollView.ContentOffset.Y)
-							{
-								var newContentOffset = new CGPoint(superScrollView.ContentOffset.X, minY);
-								if (!superScrollView.ContentOffset.Equals(newContentOffset))
-								{
-									if (View?.Superview is UIStackView)
-										superScrollView.SetContentOffset(newContentOffset, UIView.AnimationsEnabled);
-									else
-										superScrollView.ContentOffset = newContentOffset;
-								}
-							}
-							superScrollView = superScrollView.Superview as UIScrollView;
-						}
-					});
-				}
-
-				if (IsKeyboardShowing)
-					RestorePosition();
-
-				IsKeyboardShowing = false;
-				View = null;
-				LastScrollView = null;
-				KeyboardFrame = CGRect.Empty;
-				StartingContentInsets = new UIEdgeInsets();
-				StartingScrollIndicatorInsets = new UIEdgeInsets();
-				StartingContentInsets = new UIEdgeInsets();
-			});
-		}
-
-		internal static void Destroy()
+		internal static void Disconnect()
 		{
 			if (WillShowToken is not null)
 				NSNotificationCenter.DefaultCenter.RemoveObserver(WillShowToken);
+			if (WillHideToken is not null)
+				NSNotificationCenter.DefaultCenter.RemoveObserver(WillHideToken);
 			if (DidHideToken is not null)
 				NSNotificationCenter.DefaultCenter.RemoveObserver(DidHideToken);
 			if (TextFieldToken is not null)
 				NSNotificationCenter.DefaultCenter.RemoveObserver(TextFieldToken);
 			if (TextViewToken is not null)
 				NSNotificationCenter.DefaultCenter.RemoveObserver(TextViewToken);
+
+			IsCurrentlyScrolling = false;
+		}
+
+		static async void DidUITextBeginEditing(NSNotification notification)
+		{
+			IsCurrentlyScrolling = true;
+
+			if (notification.Object is not null)
+			{
+				View = notification.Object as UIView;
+
+				if (View is null)
+					return;
+
+				CursorRect = null;
+
+				ContainerView = View.GetContainerView();
+
+				// the cursor needs a small amount of time to update the position
+				await Task.Delay(5);
+
+				var localCursor = FindLocalCursorPosition();
+				if (localCursor is CGRect local)
+					CursorRect = View.ConvertRectToView(local, null);
+
+				TextViewTopDistance = ((int?)localCursor?.Height ?? 0) + 20;
+
+				await AdjustPositionDebounce();
+			}
+		}
+
+		static CGRect? FindLocalCursorPosition()
+		{
+			var textInput = View as IUITextInput;
+			var selectedTextRange = textInput?.SelectedTextRange;
+			return selectedTextRange is not null ? textInput?.GetCaretRectForPosition(selectedTextRange.Start) : null;
+		}
+
+		internal static CGRect? FindCursorPosition()
+		{
+			var localCursor = FindLocalCursorPosition();
+			if (localCursor is CGRect local)
+				return View?.ConvertRectToView(local, null);
+
+			return null;
+		}
+
+		static async void WillKeyboardShow(NSNotification notification)
+		{
+			var userInfo = notification.UserInfo;
+
+			if (userInfo is not null)
+			{
+				var frameSize = userInfo.FindValue("UIKeyboardFrameEndUserInfoKey");
+				var frameSizeRect = DescriptionToCGRect(frameSize?.Description);
+				if (frameSizeRect is not null)
+					KeyboardFrame = (CGRect)frameSizeRect;
+
+				userInfo.SetAnimationDuration();
+			}
+
+			if (!IsKeyboardShowing)
+			{
+				await AdjustPositionDebounce();
+				IsKeyboardShowing = true;
+			}
+		}
+
+		static void WillHideKeyboard(NSNotification notification)
+		{
+			notification.UserInfo?.SetAnimationDuration();
+
+			if (LastScrollView is not null)
+				UIView.Animate(AnimationDuration, 0, UIViewAnimationOptions.CurveEaseOut, AnimateHidingKeyboard, () => { });
+
+			if (IsKeyboardShowing)
+				RestorePosition();
+
+			IsKeyboardShowing = false;
+			View = null;
+			LastScrollView = null;
+			KeyboardFrame = CGRect.Empty;
+			StartingContentInsets = new UIEdgeInsets();
+			StartingScrollIndicatorInsets = new UIEdgeInsets();
+			StartingContentInsets = new UIEdgeInsets();
+		}
+
+		static void DidHideKeyboard(NSNotification notification)
+		{
+			IsCurrentlyScrolling = false;
+		}
+
+		static NSObject? FindValue(this NSDictionary dict, string key)
+		{
+			using var keyName = new NSString(key);
+			var isFound = dict.TryGetValue(keyName, out var obj);
+			return obj;
+		}
+
+		static void SetAnimationDuration(this NSDictionary dict)
+		{
+			var durationObj = dict.FindValue("UIKeyboardAnimationDurationUserInfoKey");
+			var durationNum = (NSNumber)NSObject.FromObject(durationObj);
+			var num = (double)durationNum;
+			if (num != 0)
+				AnimationDuration = num;
+		}
+
+		static void AnimateHidingKeyboard()
+		{
+			if (LastScrollView is not null && LastScrollView.ContentInset != StartingContentInsets)
+			{
+				LastScrollView.ContentInset = StartingContentInsets;
+				LastScrollView.ScrollIndicatorInsets = StartingScrollIndicatorInsets;
+			}
+
+			var superScrollView = LastScrollView;
+			while (superScrollView is not null)
+			{
+				var contentSize = new CGSize(Math.Max(superScrollView.ContentSize.Width, superScrollView.Frame.Width),
+					Math.Max(superScrollView.ContentSize.Height, superScrollView.Frame.Height));
+
+				var minY = contentSize.Height - superScrollView.Frame.Height;
+				if (minY < superScrollView.ContentOffset.Y)
+				{
+					var newContentOffset = new CGPoint(superScrollView.ContentOffset.X, minY);
+					if (!superScrollView.ContentOffset.Equals(newContentOffset))
+					{
+						if (View?.Superview is UIStackView)
+							superScrollView.SetContentOffset(newContentOffset, UIView.AnimationsEnabled);
+						else
+							superScrollView.ContentOffset = newContentOffset;
+					}
+				}
+				superScrollView = superScrollView.FindResponder<UIScrollView>();
+			}
 		}
 
 		// Used to get the numeric values from the UserInfo dictionary's NSObject value to CGRect.
 		// Doing manually since CGRectFromString is not yet bound
-		static CGRect? DescriptionToCGRect(string description)
+		static CGRect? DescriptionToCGRect(string? description)
 		{
 			// example of passed in description: "NSRect: {{0, 586}, {430, 346}}"
 
 			if (description is null)
 				return null;
 
-			// remove letters in all languages, spaces, and curly brackets
-			var temp = Regex.Replace(description, @"[\p{L}\s:{}]", "");
+			// remove everything except for numbers and commas
+			var temp = Regex.Replace(description, @"[^0-9,]", "");
 			var dimensions = temp.Split(',');
 
-			if (int.TryParse(dimensions[0], out var x) && int.TryParse(dimensions[1], out var y)
-				&& int.TryParse(dimensions[2], out var width) && int.TryParse(dimensions[3], out var height))
+			if (dimensions.Length == 4
+				&& nfloat.TryParse(dimensions[0], out var x)
+				&& nfloat.TryParse(dimensions[1], out var y)
+				&& nfloat.TryParse(dimensions[2], out var width)
+				&& nfloat.TryParse(dimensions[3], out var height))
 			{
 				return new CGRect(x, y, width, height);
 			}
@@ -248,61 +285,18 @@ namespace Maui.FixesAndWorkarounds
 			return null;
 		}
 
-		static async Task SetUpTextEdit()
-		{
-			if (View is null)
-				return;
-
-			CursorRect = null;
-
-			RootController = FindRootView(View);
-
-			// the cursor needs a small amount of time to update the position
-			await Task.Delay(5);
-
-			UITextRange? selectedTextRange;
-			CGRect? localCursor = null;
-
-			if (View is UITextView tv)
-			{
-				selectedTextRange = tv.SelectedTextRange;
-				if (selectedTextRange is UITextRange selectedRange)
-				{
-					localCursor = tv.GetCaretRectForPosition(selectedRange.Start);
-					if (localCursor is CGRect local)
-						CursorRect = tv.ConvertRectToView(local, null);
-				}
-			}
-			else if (View is UITextField tf)
-			{
-				selectedTextRange = tf.SelectedTextRange;
-				if (selectedTextRange is UITextRange selectedRange)
-				{
-					localCursor = tf.GetCaretRectForPosition(selectedRange.Start);
-					if (localCursor is CGRect local)
-						CursorRect = tf.ConvertRectToView(local, null);
-				}
-			}
-
-			TextViewTopDistance = localCursor is CGRect cGRect ? 20 + (int)cGRect.Height : 20;
-
-			await AdjustPositionDebounce();
-		}
-
 		// Used to debounce calls from different oberservers so we can be sure
 		// all the fields are updated before calling AdjustPostition()
 		internal static async Task AdjustPositionDebounce()
 		{
-			DebounceCount++;
+			Interlocked.Increment(ref DebounceCount);
+
 			var entranceCount = DebounceCount;
 
 			await Task.Delay(10);
 
 			if (entranceCount == DebounceCount)
-			{
 				AdjustPosition();
-				DebounceCount = 0;
-			}
 		}
 
 		// main method to calculate and animate the scrolling
@@ -311,23 +305,22 @@ namespace Maui.FixesAndWorkarounds
 			if (View is not UITextField field && View is not UITextView)
 				return;
 
-			if (RootController is null)
+			if (ContainerView is null)
 				return;
 
-			var rootViewOrigin = new CGPoint(RootController.Frame.GetMinX(), RootController.Frame.GetMinY());
-			var window = RootController.Window;
+			if (TopViewBeginOrigin == InvalidPoint)
+				TopViewBeginOrigin = new CGPoint(ContainerView.Frame.X, ContainerView.Frame.Y);
 
-			var kbSize = KeyboardFrame.Size;
+			var rootViewOrigin = new CGPoint(ContainerView.Frame.GetMinX(), ContainerView.Frame.GetMinY());
+			var window = ContainerView.Window;
+
 			var intersectRect = CGRect.Intersect(KeyboardFrame, window.Frame);
-			if (intersectRect == CGRect.Empty)
-				kbSize = new CGSize(KeyboardFrame.Width, 0);
-			else
-				kbSize = intersectRect.Size;
+			var kbSize = intersectRect == CGRect.Empty ? new CGSize(KeyboardFrame.Width, 0) : intersectRect.Size;
 
 			nfloat statusBarHeight;
 			nfloat navigationBarAreaHeight;
 
-			if (RootController.GetNavigationController() is UINavigationController navigationController)
+			if (ContainerView.GetNavigationController() is UINavigationController navigationController)
 			{
 				navigationBarAreaHeight = navigationController.NavigationBar.Frame.GetMaxY();
 			}
@@ -341,46 +334,57 @@ namespace Maui.FixesAndWorkarounds
 				navigationBarAreaHeight = statusBarHeight;
 			}
 
-			var topLayoutGuide = Math.Max(navigationBarAreaHeight, RootController.LayoutMargins.Bottom) + 5;
+			var topLayoutGuide = Math.Max(navigationBarAreaHeight, ContainerView.LayoutMargins.Top) + 5;
 
 			var keyboardYPosition = window.Frame.Height - kbSize.Height - TextViewTopDistance;
 
-			CGRect cursorRect;
-
-			if (CursorRect is CGRect cRect)
-				cursorRect = cRect;
-			else
-				return;
-
-			if (cursorRect.Y >= topLayoutGuide && cursorRect.Y < keyboardYPosition)
-				return;
-
-			nfloat move = 0;
+			var viewRectInWindow = View.ConvertRectToView(View.Bounds, window);
 
 			// readjust contentInset when the textView height is too large for the screen
 			var rootSuperViewFrameInWindow = window.Frame;
-			if (RootController.Superview is UIView v)
+			if (ContainerView.Superview is UIView v)
 				rootSuperViewFrameInWindow = v.ConvertRectToView(v.Bounds, window);
 
-			if (cursorRect.Y > keyboardYPosition)
+			if (CursorRect is null)
+				return;
+
+			var cursorRect = (CGRect)CursorRect;
+
+			nfloat cursorNotInViewScroll = 0;
+			nfloat move = 0;
+			bool cursorTooHigh = false;
+			bool cursorTooLow = false;
+
+			if (cursorRect.Y >= viewRectInWindow.GetMaxY())
+			{
+				cursorNotInViewScroll = viewRectInWindow.GetMaxY() - cursorRect.GetMaxY();
+				move = cursorRect.Y - keyboardYPosition + cursorNotInViewScroll;
+				cursorTooLow = true;
+			}
+
+			else if (cursorRect.Y < viewRectInWindow.GetMinY())
+			{
+				cursorNotInViewScroll = viewRectInWindow.GetMinY() - cursorRect.Y;
+				move = cursorRect.Y - keyboardYPosition + cursorNotInViewScroll;
+				cursorTooHigh = true;
+
+				// no need to move the screen down if we can already see the view
+				if (move < 0)
+					move = 0;
+			}
+
+			else if (cursorRect.Y >= topLayoutGuide && cursorRect.Y < keyboardYPosition)
+				return;
+
+			else if (cursorRect.Y > keyboardYPosition)
 				move = cursorRect.Y - keyboardYPosition;
 
 			else if (cursorRect.Y <= topLayoutGuide)
 				move = cursorRect.Y - (nfloat)topLayoutGuide;
 
 			// Find the next parent ScrollView that is scrollable
-			UIScrollView? superScrollView = null;
 			var superView = View.FindResponder<UIScrollView>();
-			while (superView is not null)
-			{
-				if (superView.ScrollEnabled)
-				{
-					superScrollView = superView;
-					break;
-				}
-
-				superView = superView.FindResponder<UIScrollView>();
-			}
+			var superScrollView = FindParentScroll(superView);
 
 			// This is the case when the keyboard is already showing and we click another editor/entry
 			if (LastScrollView is not null)
@@ -389,13 +393,7 @@ namespace Maui.FixesAndWorkarounds
 				if (superScrollView is null)
 				{
 					if (LastScrollView.ContentInset != StartingContentInsets)
-					{
-						AnimateScroll(() =>
-						{
-							LastScrollView.ContentInset = StartingContentInsets;
-							LastScrollView.ScrollIndicatorInsets = StartingScrollIndicatorInsets;
-						});
-					}
+						UIView.Animate(AnimationDuration, 0, UIViewAnimationOptions.CurveEaseOut, AnimateStartingLastScrollView, () => { });
 
 					if (!LastScrollView.ContentOffset.Equals(StartingContentOffset))
 					{
@@ -410,54 +408,16 @@ namespace Maui.FixesAndWorkarounds
 					StartingContentOffset = new CGPoint(0, 0);
 					LastScrollView = null;
 				}
-
-				// if we have different LastScrollView and superScrollViews, set the LastScrollView to the original frame
-				// and set the LastScrollView as the superScrolView
-				else if (superScrollView != LastScrollView)
-				{
-					if (LastScrollView.ContentInset != StartingContentInsets)
-					{
-						AnimateScroll(() =>
-						{
-							LastScrollView.ContentInset = StartingContentInsets;
-							LastScrollView.ScrollIndicatorInsets = StartingScrollIndicatorInsets;
-						});
-					}
-
-					if (!LastScrollView.ContentOffset.Equals(StartingContentOffset))
-					{
-						if (View.FindResponder<UIStackView>() is not null)
-							LastScrollView.SetContentOffset(StartingContentOffset, UIView.AnimationsEnabled);
-						else
-							LastScrollView.ContentOffset = StartingContentOffset;
-					}
-
-					LastScrollView = superScrollView;
-					if (superScrollView is not null)
-					{
-						StartingContentInsets = superScrollView.ContentInset;
-						StartingContentOffset = superScrollView.ContentOffset;
-
-						if (OperatingSystem.IsIOSVersionAtLeast(11, 1))
-							StartingScrollIndicatorInsets = superScrollView.VerticalScrollIndicatorInsets;
-						else
-							StartingScrollIndicatorInsets = superScrollView.ScrollIndicatorInsets;
-					}
-				}
 			}
 
-			// If there was no LastScrollView, but there is a superScrollView,
-			// set the LastScrollView to be the superScrollView
 			else if (superScrollView is not null)
 			{
 				LastScrollView = superScrollView;
 				StartingContentInsets = superScrollView.ContentInset;
 				StartingContentOffset = superScrollView.ContentOffset;
 
-				if (OperatingSystem.IsIOSVersionAtLeast(11, 1))
-					StartingScrollIndicatorInsets = superScrollView.VerticalScrollIndicatorInsets;
-				else
-					StartingScrollIndicatorInsets = superScrollView.ScrollIndicatorInsets;
+				StartingScrollIndicatorInsets = OperatingSystem.IsIOSVersionAtLeast(11, 1) ?
+					superScrollView.VerticalScrollIndicatorInsets : superScrollView.ScrollIndicatorInsets;
 			}
 
 			// Calculate the move for the ScrollViews
@@ -485,7 +445,7 @@ namespace Maui.FixesAndWorkarounds
 							var previousCellRect = tableView.RectForRowAtIndexPath(previousIndexPath);
 							if (!previousCellRect.IsEmpty)
 							{
-								var previousCellRectInRootSuperview = tableView.ConvertRectToView(previousCellRect, RootController.Superview);
+								var previousCellRectInRootSuperview = tableView.ConvertRectToView(previousCellRect, ContainerView.Superview);
 								move = (nfloat)Math.Min(0, previousCellRectInRootSuperview.GetMaxY() - topLayoutGuide);
 							}
 						}
@@ -504,7 +464,7 @@ namespace Maui.FixesAndWorkarounds
 
 							if (!previousCellRect.IsEmpty)
 							{
-								var previousCellRectInRootSuperview = collectionView.ConvertRectToView(previousCellRect, RootController.Superview);
+								var previousCellRectInRootSuperview = collectionView.ConvertRectToView(previousCellRect, ContainerView.Superview);
 								move = (nfloat)Math.Min(0, previousCellRectInRootSuperview.GetMaxY() - topLayoutGuide);
 							}
 						}
@@ -512,14 +472,13 @@ namespace Maui.FixesAndWorkarounds
 
 					else
 					{
-						if (cursorRect.Y - innerScrollValue >= topLayoutGuide && cursorRect.Y - innerScrollValue <= keyboardYPosition)
-							shouldContinue = false;
-						else
-							shouldContinue = true;
+						shouldContinue = !(innerScrollValue == 0
+							&& cursorRect.Y + cursorNotInViewScroll >= topLayoutGuide
+							&& cursorRect.Y + cursorNotInViewScroll <= keyboardYPosition);
 
-						if (cursorRect.Y - innerScrollValue < topLayoutGuide)
+						if (cursorRect.Y - innerScrollValue < topLayoutGuide && !cursorTooHigh)
 							move = cursorRect.Y - innerScrollValue - (nfloat)topLayoutGuide;
-						else if (cursorRect.Y - innerScrollValue > keyboardYPosition)
+						else if (cursorRect.Y - innerScrollValue > keyboardYPosition && !cursorTooLow)
 							move = cursorRect.Y - innerScrollValue - keyboardYPosition;
 					}
 
@@ -527,18 +486,7 @@ namespace Maui.FixesAndWorkarounds
 					if (shouldContinue)
 					{
 						var tempScrollView = superScrollView.FindResponder<UIScrollView>();
-						UIScrollView? nextScrollView = null;
-
-						// set tempScrollView to next scrollable superview of superScrollView
-						while (tempScrollView is not null)
-						{
-							if (tempScrollView.ScrollEnabled)
-							{
-								nextScrollView = tempScrollView;
-								break;
-							}
-							tempScrollView = tempScrollView.FindResponder<UIScrollView>();
-						}
+						var nextScrollView = FindParentScroll(tempScrollView);
 
 						var shouldOffsetY = superScrollView.ContentOffset.Y - Math.Min(superScrollView.ContentOffset.Y, -move);
 
@@ -547,11 +495,14 @@ namespace Maui.FixesAndWorkarounds
 
 						var newContentOffset = new CGPoint(superScrollView.ContentOffset.X, shouldOffsetY);
 
-						if (!superScrollView.ContentOffset.Equals(newContentOffset))
+						if (!superScrollView.ContentOffset.Equals(newContentOffset) || innerScrollValue != 0)
 						{
-							if (nextScrollView is null)
+							// if we can scroll the superScrollView and still not be above keyboard, pass scrolling to the parent
+							var superScrollViewRect = superScrollView.ConvertRectToView(superScrollView.Bounds, window);
+
+							if (nextScrollView is null && superScrollViewRect.Y < keyboardYPosition)
 							{
-								AnimateScroll(() =>
+								UIView.Animate(AnimationDuration, 0, UIViewAnimationOptions.CurveEaseOut, () =>
 								{
 									newContentOffset.Y += innerScrollValue;
 									innerScrollValue = 0;
@@ -560,7 +511,7 @@ namespace Maui.FixesAndWorkarounds
 										superScrollView.SetContentOffset(newContentOffset, UIView.AnimationsEnabled);
 									else
 										superScrollView.ContentOffset = newContentOffset;
-								});
+								}, () => { });
 							}
 
 							else
@@ -581,76 +532,98 @@ namespace Maui.FixesAndWorkarounds
 						break;
 					}
 				}
+
+				move += innerScrollValue;
 			}
 
 			if (move >= 0)
 			{
 				rootViewOrigin.Y = (nfloat)Math.Max(rootViewOrigin.Y - move, Math.Min(0, -kbSize.Height - TextViewTopDistance));
 
-				if (RootController.Frame.X != rootViewOrigin.X || RootController.Frame.Y != rootViewOrigin.Y)
+				if (ContainerView.Frame.X != rootViewOrigin.X || ContainerView.Frame.Y != rootViewOrigin.Y)
 				{
-					AnimateScroll(() =>
-					{
-						var rect = RootController.Frame;
-						rect.X = rootViewOrigin.X;
-						rect.Y = rootViewOrigin.Y;
+					var rect = ContainerView.Frame;
+					rect.X = rootViewOrigin.X;
+					rect.Y = rootViewOrigin.Y;
 
-						RootController.Frame = rect;
-					});
+					UIView.Animate(AnimationDuration, 0, UIViewAnimationOptions.CurveEaseOut, () => AnimateRootView(rect), () => { });
 				}
 			}
 
 			else
 			{
-				var disturbDistance = rootViewOrigin.Y - TopViewBeginOrigin.Y;
+				rootViewOrigin.Y -= move;
 
-				if (disturbDistance <= 0)
+				if (ContainerView.Frame.X != rootViewOrigin.X || ContainerView.Frame.Y != rootViewOrigin.Y)
 				{
-					rootViewOrigin.Y -= (nfloat)Math.Max(move, disturbDistance);
+					var rect = ContainerView.Frame;
+					rect.X = rootViewOrigin.X;
+					rect.Y = rootViewOrigin.Y;
 
-					if (RootController.Frame.X != rootViewOrigin.X || RootController.Frame.Y != rootViewOrigin.Y)
-					{
-						AnimateScroll(() =>
-						{
-							var rect = RootController.Frame;
-							rect.X = rootViewOrigin.X;
-							rect.Y = rootViewOrigin.Y;
-
-							RootController.Frame = rect;
-						});
-					}
+					UIView.Animate(AnimationDuration, 0, UIViewAnimationOptions.CurveEaseOut, () => AnimateRootView(rect), () => { });
 				}
 			}
 		}
 
-		static void AnimateScroll(Action? action)
+		static void AnimateStartingLastScrollView()
 		{
-			UIView.Animate(AnimationDuration, 0, UIViewAnimationOptions.CurveEaseOut, () =>
+			if (LastScrollView is not null)
 			{
-				action?.Invoke();
-			}, () => { });
+				LastScrollView.ContentInset = StartingContentInsets;
+				LastScrollView.ScrollIndicatorInsets = StartingScrollIndicatorInsets;
+			}
+		}
+
+		static void AnimateRootView(CGRect rect)
+		{
+			if (ContainerView is not null)
+				ContainerView.Frame = rect;
+		}
+
+		static UIScrollView? FindParentScroll(UIScrollView? view)
+		{
+			while (view is not null)
+			{
+				if (view.ScrollEnabled)
+					return view;
+
+				view = view.FindResponder<UIScrollView>();
+			}
+
+			return null;
+		}
+
+		internal static nfloat FindKeyboardHeight()
+		{
+			if (ContainerView is null)
+				return 0;
+
+			var window = ContainerView.Window;
+			var intersectRect = CGRect.Intersect(KeyboardFrame, window.Frame);
+			var kbSize = intersectRect == CGRect.Empty ? new CGSize(KeyboardFrame.Width, 0) : intersectRect.Size;
+
+			return window.Frame.Height - kbSize.Height;
 		}
 
 		static void RestorePosition()
 		{
-			if (RootController is not null && (RootController.Frame.X != TopViewBeginOrigin.X || RootController.Frame.Y != TopViewBeginOrigin.Y))
+			if (ContainerView is not null
+				&& (ContainerView.Frame.X != TopViewBeginOrigin.X || ContainerView.Frame.Y != TopViewBeginOrigin.Y)
+				&& TopViewBeginOrigin != InvalidPoint)
 			{
-				AnimateScroll(() =>
-				{
-					var rect = RootController.Frame;
-					rect.X = TopViewBeginOrigin.X;
-					rect.Y = TopViewBeginOrigin.Y;
+				var rect = ContainerView.Frame;
+				rect.X = TopViewBeginOrigin.X;
+				rect.Y = TopViewBeginOrigin.Y;
 
-					RootController.Frame = rect;
-				});
+				UIView.Animate(AnimationDuration, 0, UIViewAnimationOptions.CurveEaseOut, () => AnimateRootView(rect), () => { });
 			}
 			View = null;
-			RootController = null;
+			ContainerView = null;
 			TopViewBeginOrigin = InvalidPoint;
 			CursorRect = null;
 		}
 
-		static NSIndexPath? GetPreviousIndexPath(this UITableView tableView, NSIndexPath indexPath)
+		static NSIndexPath? GetPreviousIndexPath(this UIScrollView scrollView, NSIndexPath indexPath)
 		{
 			var previousRow = indexPath.Row - 1;
 			var previousSection = indexPath.Section;
@@ -658,26 +631,12 @@ namespace Maui.FixesAndWorkarounds
 			if (previousRow < 0)
 			{
 				previousSection -= 1;
-				if (previousSection >= 0)
-					previousRow = (int)(tableView.NumberOfRowsInSection(previousSection) - 1);
-			}
-
-			if (previousRow >= 0 && previousSection >= 0)
-				return NSIndexPath.FromRowSection(previousRow, previousSection);
-			else
-				return null;
-		}
-
-		static NSIndexPath? GetPreviousIndexPath(this UICollectionView collectionView, NSIndexPath indexPath)
-		{
-			var previousRow = indexPath.Row - 1;
-			var previousSection = indexPath.Section;
-
-			if (previousRow < 0)
-			{
-				previousSection -= 1;
-				if (previousSection >= 0)
+				if (previousSection >= 0 && scrollView is UICollectionView collectionView)
 					previousRow = (int)(collectionView.NumberOfItemsInSection(previousSection) - 1);
+				else if (previousSection >= 0 && scrollView is UITableView tableView)
+					previousRow = (int)(tableView.NumberOfRowsInSection(previousSection) - 1);
+				else
+					return null;
 			}
 
 			if (previousRow >= 0 && previousSection >= 0)
