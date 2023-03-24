@@ -88,6 +88,7 @@ namespace Maui.FixesAndWorkarounds.Library.Common
 			action?.Invoke(viewHandler, virtualView, args);
 		}
 
+#if WINDOWS || IOS || MACCATALYST || ANDROID
 		internal static void SetVirtualView<TElement>(
 			this IElement view,
 			IPlatformViewHandler nativeViewHandler,
@@ -135,6 +136,7 @@ namespace Maui.FixesAndWorkarounds.Library.Common
 			_mapper.UpdateProperties(nativeViewHandler, currentVirtualView);
 		}
 		static partial void ProcessAutoPackage(IElement element);
+#endif
 
 #if IOS || MACCATALYST
 		internal static Size GetDesiredSize(this IPlatformViewHandler handler, double widthConstraint, double heightConstraint, Size? minimumSize)
