@@ -3,6 +3,7 @@
 using System;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using Maui.FixesAndWorkarounds.Library.Common;
 using Microsoft.Maui.Controls.Internals;
 using Microsoft.Maui.Controls.Platform;
@@ -445,11 +446,9 @@ namespace Microsoft.Maui.Controls.Handlers.Compatibility
 			UIViewController firstPage = detailRenderer?.ViewControllers.FirstOrDefault();
 			if (firstPage != null)
 			{
-				//internal static void SetFlyoutLeftBarButton(UIViewController containerController, FlyoutPage FlyoutPage)
-
 				var method = typeof(NavigationRenderer)
-					.GetType()
-					.GetMethod("SetFlyoutLeftBarButton", System.Reflection.BindingFlags.Static);
+					.GetMethod("SetFlyoutLeftBarButton",
+					BindingFlags.NonPublic | BindingFlags.Static);
 
 				method?.Invoke(null, new object[] { firstPage, FlyoutPage });
 			}

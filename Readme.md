@@ -15,6 +15,7 @@
 - Modal measuring when you push a modal and type in a box
 - Various Frame Issues
 - ConfigureKeyboardAutoScroll will auto scroll your entries into view
+- FlyoutPage on iPAD
 
 ### Features added
 - Android, tapping off into nothingess closes keyboard (need to use included behaviors for this to work)
@@ -31,10 +32,16 @@ builder.ConfigureMauiWorkarounds();
 #### Pick some
 
 ```C#
-builder.ConfigureMauiWorkarounds(false);
+
 builder.ConfigureShellWorkarounds();
 builder.ConfigureTabbedPageWorkarounds();
 builder.ConfigureEntryNextWorkaround();
 builder.ConfigureKeyboardAutoScroll();
+builder.ConfigureFlyoutPageWorkarounds();
+
+#if ANDROID
+builder.ConfigureEntryFocusOpensKeyboard();
+#endif
+
 ```
 
