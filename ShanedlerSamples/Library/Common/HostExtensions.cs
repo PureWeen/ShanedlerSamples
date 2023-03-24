@@ -34,6 +34,7 @@ namespace Maui.FixesAndWorkarounds
 				builder.ConfigureTabbedPageWorkarounds();
 				builder.ConfigureEntryNextWorkaround();
 				builder.ConfigureKeyboardAutoScroll();
+				builder.ConfigureFlyoutPageWorkarounds();
 #if ANDROID
 				builder.ConfigureEntryFocusOpensKeyboard();
 #endif

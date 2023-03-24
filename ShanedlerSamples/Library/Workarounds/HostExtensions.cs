@@ -76,9 +76,23 @@ namespace Maui.FixesAndWorkarounds
 			return builder;
 		}
 
+
+		public static MauiAppBuilder ConfigureFlyoutPageWorkarounds(this MauiAppBuilder builder)
+		{
+#if IOS || MACCATALYST
+
+			builder.ConfigureMauiHandlers(handlers =>
+			{
+				handlers.AddHandler<FlyoutPage, CustomPhoneFlyoutPageRenderer>();
+			});
+
+#endif
+			return builder;
+		}
+
 		public static MauiAppBuilder ConfigureShellWorkarounds(this MauiAppBuilder builder)
 		{
-#if ANDROID || IOS
+#if ANDROID || IOS || MACCATALYST
 
 			builder.ConfigureMauiHandlers(handlers =>
 			{
