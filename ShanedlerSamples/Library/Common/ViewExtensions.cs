@@ -3,6 +3,7 @@ using Maui.FixesAndWorkarounds;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -26,6 +27,22 @@ namespace Maui.FixesAndWorkarounds.Library.Common
 {
     internal static partial class Extensions
     {
+
+		internal static void InvokePrivateMethod(this object target, string methodName, object?[]? parameters)
+		{
+			var methods =
+				target.GetType().GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+
+			foreach (var thing in methods)
+			{
+				if (thing.Name == methodName)
+				{
+					thing.Invoke(target, parameters);
+					return;
+				}
+			}
+		}
+
         internal static T? FindParentOfType<T>(this Element element, bool includeThis = false)
             where T : IElement
         {

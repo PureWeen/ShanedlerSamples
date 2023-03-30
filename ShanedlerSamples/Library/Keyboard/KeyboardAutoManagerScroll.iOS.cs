@@ -26,7 +26,7 @@ namespace Maui.FixesAndWorkarounds
 		// while the KeyboardAutoManagerScroll is scrolling.
 		public override void ScrollRectToVisible(CGRect rect, bool animated)
 		{
-			if (!KeyboardAutoManagerScroll.IsCurrentlyScrolling)
+			if (!KeyboardAutoManagerScroll.IsKeyboardAutoScrollHandling)
 				base.ScrollRectToVisible(rect, animated);
 		}
 	}
@@ -70,9 +70,10 @@ namespace Maui.FixesAndWorkarounds
 
 
 
-	internal static class KeyboardAutoManagerScroll
+
+	public static class KeyboardAutoManagerScroll
 	{
-		internal static bool IsCurrentlyScrolling;
+		internal static bool IsKeyboardAutoScrollHandling;
 		static UIScrollView? LastScrollView;
 		static CGPoint StartingContentOffset;
 		static UIEdgeInsets StartingScrollIndicatorInsets;
@@ -93,7 +94,7 @@ namespace Maui.FixesAndWorkarounds
 		static NSObject? TextFieldToken = null;
 		static NSObject? TextViewToken = null;
 
-		internal static void Connect()
+		public static void Connect()
 		{
 			if (TextFieldToken is not null)
 				return;
@@ -109,7 +110,7 @@ namespace Maui.FixesAndWorkarounds
 			DidHideToken = NSNotificationCenter.DefaultCenter.AddObserver(new NSString("UIKeyboardDidHideNotification"), DidHideKeyboard);
 		}
 
-		internal static void Disconnect()
+		public static void Disconnect()
 		{
 			if (WillShowToken is not null)
 				NSNotificationCenter.DefaultCenter.RemoveObserver(WillShowToken);
@@ -122,19 +123,22 @@ namespace Maui.FixesAndWorkarounds
 			if (TextViewToken is not null)
 				NSNotificationCenter.DefaultCenter.RemoveObserver(TextViewToken);
 
-			IsCurrentlyScrolling = false;
+			IsKeyboardAutoScrollHandling = false;
 		}
 
 		static async void DidUITextBeginEditing(NSNotification notification)
 		{
-			IsCurrentlyScrolling = true;
+			IsKeyboardAutoScrollHandling = true;
 
 			if (notification.Object is not null)
 			{
 				View = notification.Object as UIView;
 
-				if (View is null)
+				if (View is null || View.FindResponder<UIAlertController>() is not null)
+				{
+					IsKeyboardAutoScrollHandling = false;
 					return;
+				}
 
 				CursorRect = null;
 
@@ -211,7 +215,7 @@ namespace Maui.FixesAndWorkarounds
 
 		static void DidHideKeyboard(NSNotification notification)
 		{
-			IsCurrentlyScrolling = false;
+			IsKeyboardAutoScrollHandling = false;
 		}
 
 		static NSObject? FindValue(this NSDictionary dict, string key)
@@ -302,11 +306,13 @@ namespace Maui.FixesAndWorkarounds
 		// main method to calculate and animate the scrolling
 		internal static void AdjustPosition()
 		{
-			if (View is not UITextField field && View is not UITextView)
+			if (ContainerView is null
+				|| CursorRect is null
+				|| (View is not UITextField && View is not UITextView))
+			{
+				IsKeyboardAutoScrollHandling = false;
 				return;
-
-			if (ContainerView is null)
-				return;
+			}
 
 			if (TopViewBeginOrigin == InvalidPoint)
 				TopViewBeginOrigin = new CGPoint(ContainerView.Frame.X, ContainerView.Frame.Y);
@@ -344,9 +350,6 @@ namespace Maui.FixesAndWorkarounds
 			var rootSuperViewFrameInWindow = window.Frame;
 			if (ContainerView.Superview is UIView v)
 				rootSuperViewFrameInWindow = v.ConvertRectToView(v.Bounds, window);
-
-			if (CursorRect is null)
-				return;
 
 			var cursorRect = (CGRect)CursorRect;
 

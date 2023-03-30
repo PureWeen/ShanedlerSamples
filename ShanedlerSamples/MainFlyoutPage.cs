@@ -5,16 +5,41 @@ public class MainFlyoutPage : FlyoutPage
 	public MainFlyoutPage()
 	{
 		Detail = new NavigationPage(new MainPage());
-		Flyout = new ContentPage()
+		Flyout = new SwappingStuffFlyoutPage();
+		//Flyout = new ContentPage()
+		//{
+		//	Content = new VerticalStackLayout()
+		//	{
+		//		new Label()
+		//		{
+		//			Text = "label"
+		//		}
+		//	},
+		//	Title = "rabbits of mercy"
+		//};
+	}
+
+	class SwappingStuffFlyoutPage : ContentPage
+	{
+		public SwappingStuffFlyoutPage()
 		{
-			Content = new VerticalStackLayout()
+			Title = "Hi thgere";
+
+			var layout = new VerticalStackLayout();
+
+			layout.Add(new Button()
 			{
-				new Label()
+				Text = "Swap flyout page",
+				Command = new Command(() =>
 				{
-					Text = "label"
-				}
-			},
-			Title = "rabbits of mercy"
-		};
+					if (Application.Current.MainPage is FlyoutPage fp)
+					{
+						fp.Detail = new NavigationPage(new MainPage());
+					}
+				})
+			});
+
+			Content = layout;
+		}
 	}
 }

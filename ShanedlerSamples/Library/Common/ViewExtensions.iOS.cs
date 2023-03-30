@@ -85,7 +85,17 @@ namespace Maui.FixesAndWorkarounds.Library.Common
 				if (siblings is null)
 					break;
 
-				nextView = view.FindNextView(siblings.IndexOf(view) + 1, isValidType);
+				// TableView and ListView cells may not be in order so handle separately
+				if (view.FindResponder<UITableView>() is UITableView tableView)
+				{
+					nextView = view.FindNextInTableView(tableView, isValidType);
+
+					if (nextView is null)
+						view = tableView;
+				}
+
+				else
+					nextView = view.FindNextView(siblings.IndexOf(view) + 1, isValidType);
 
 				view = view.Superview;
 			}
@@ -99,7 +109,7 @@ namespace Maui.FixesAndWorkarounds.Library.Common
 		static UIView? FindNextView(this UIView? view, int index, Func<UIView, bool> isValidType)
 		{
 			// search through the view's siblings and traverse down their branches
-			var siblings = view?.Superview?.Subviews;
+			var siblings = view is UITableView table ? table.VisibleCells : view?.Superview?.Subviews;
 
 			if (siblings is null)
 				return null;
@@ -120,6 +130,31 @@ namespace Maui.FixesAndWorkarounds.Library.Common
 			}
 
 			return null;
+		}
+
+		static UIView? FindNextInTableView(this UIView view, UITableView table, Func<UIView, bool> isValidType)
+		{
+			if (isValidType(view))
+			{
+				var index = view.FindTableViewCellIndex(table);
+
+				return index == -1 ? null : table.FindNextView(index + 1, isValidType);
+			}
+
+			return null;
+		}
+
+		static int FindTableViewCellIndex(this UIView view, UITableView table)
+		{
+			var cells = table.VisibleCells;
+			var viewCell = view.FindResponder<UITableViewCell>();
+
+			for (int i = 0; i < cells.Length; i++)
+			{
+				if (cells[i] == viewCell)
+					return i;
+			}
+			return -1;
 		}
 
 		internal static void ChangeFocusedView(this UIView view, UIView? newView)
