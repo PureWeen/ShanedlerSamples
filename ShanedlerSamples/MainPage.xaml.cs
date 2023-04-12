@@ -11,6 +11,8 @@ public partial class MainPage : ContentPage
 		InitializeComponent();
 	}
 
+	bool flag;
+
 	private void OnCounterClicked(object sender, EventArgs e)
 	{
 		count++;
