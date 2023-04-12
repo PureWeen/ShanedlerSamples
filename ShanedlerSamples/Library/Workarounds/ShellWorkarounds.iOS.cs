@@ -8,6 +8,7 @@ using Microsoft.Maui.Controls.Internals;
 using Microsoft.Maui.Controls.Platform.Compatibility;
 using Microsoft.Maui.Platform;
 using ObjCRuntime;
+using System.ComponentModel;
 using System.Reflection;
 using UIKit;
 
@@ -63,11 +64,40 @@ namespace Maui.FixesAndWorkarounds
 			_navDelegate = Delegate as UINavigationControllerDelegate;
 			Delegate = new NavDelegate(_navDelegate, this);
 			Context = context;
-		}
+            UpdateLargeTitle();
+            (Context as ShellRenderer).Element.PropertyChanged += HandleElementPropertyChanged;
+        }
 
-		public IShellContext Context { get; }
+        public IShellContext Context { get; }
 
-		protected override IShellSectionRootRenderer CreateShellSectionRootRenderer(ShellSection shellSection, IShellContext shellContext)
+
+        void HandleElementPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            base.HandlePropertyChanged(sender, e);
+
+            if (e.PropertyName == ShanedlerSamples.Library.iOSSpecific.Shell.PrefersLargeTitlesProperty.PropertyName)
+                UpdateLargeTitle();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            (Context as ShellRenderer).Element.PropertyChanged -= HandleElementPropertyChanged;
+            base.Dispose(disposing);
+        }
+
+        void UpdateLargeTitle()
+        {
+
+            if (!OperatingSystem.IsIOSVersionAtLeast(11))
+                return;
+
+            var value = ShanedlerSamples.Library.iOSSpecific.Shell.GetPrefersLargeTitles(Shell.Current);
+            this.ViewController.NavigationItem.LargeTitleDisplayMode = UINavigationItemLargeTitleDisplayMode.Always;
+            this.NavigationItem.LargeTitleDisplayMode = UINavigationItemLargeTitleDisplayMode.Always;
+            NavigationBar.PrefersLargeTitles = value;
+        }
+
+        protected override IShellSectionRootRenderer CreateShellSectionRootRenderer(ShellSection shellSection, IShellContext shellContext)
 		{
 			return new CustomShellSectionRootRenderer(shellSection, shellContext, this);
 		}
