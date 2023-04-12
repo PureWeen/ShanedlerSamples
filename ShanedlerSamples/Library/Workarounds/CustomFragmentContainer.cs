@@ -48,13 +48,10 @@ namespace Microsoft.Maui.Controls.Platform
 			return _pageContainer;
 		}
 
-		internal static bool InTheThrowsOfTheAdapterHack;
 		public override void OnDestroy()
 		{
 			base.OnDestroy();
-
-			if (!InTheThrowsOfTheAdapterHack)
-				Page?.Handler?.DisconnectHandler();
+			Page?.Handler?.DisconnectHandler();
 		}
 
 		public override void OnResume()
