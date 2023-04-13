@@ -31,49 +31,6 @@ namespace Maui.FixesAndWorkarounds
 
             return result;
         }
-
-        protected override void OnMeasure(int widthMeasureSpec, int heightMeasureSpec)
-        {
-            var parent = Parent;
-
-            while (parent != null && !parent.GetType().Name.Contains("ModalContainer"))
-            {
-                parent = parent.Parent;
-            }
-
-            if (parent != null)
-            {
-                FixMargins(parent as AView);
-            }
-
-            base.OnMeasure(widthMeasureSpec, heightMeasureSpec);
-        }
-
-        void FixMargins(AView view)
-        {
-            var decorView = Context?.GetActivity()?.Window?.DecorView;
-
-            if (decorView != null && view.LayoutParameters is ViewGroup.MarginLayoutParams mlp)
-            {
-                var windowInsets = ViewCompat.GetRootWindowInsets(decorView);
-                if (windowInsets != null)
-                {
-                    var barInsets = windowInsets.GetInsetsIgnoringVisibility(WindowInsetsCompat.Type.SystemBars());
-
-                    if (mlp.TopMargin != barInsets.Top)
-                        mlp.TopMargin = barInsets.Top;
-
-                    if (mlp.LeftMargin != barInsets.Left)
-                        mlp.LeftMargin = barInsets.Left;
-
-                    if (mlp.RightMargin != barInsets.Right)
-                        mlp.RightMargin = barInsets.Right;
-
-                    if (mlp.BottomMargin != barInsets.Bottom)
-                        mlp.BottomMargin = barInsets.Bottom;
-                }
-            }
-        }
     }
 }
 #endif
