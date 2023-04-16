@@ -64,40 +64,32 @@ namespace Maui.FixesAndWorkarounds
 			_navDelegate = Delegate as UINavigationControllerDelegate;
 			Delegate = new NavDelegate(_navDelegate, this);
 			Context = context;
-            UpdateLargeTitle();
-            (Context as ShellRenderer).Element.PropertyChanged += HandleElementPropertyChanged;
-        }
+			UpdateLargeTitle();
+		}
 
-        public IShellContext Context { get; }
+		public IShellContext Context { get; }
 
-
-        void HandleElementPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            base.HandlePropertyChanged(sender, e);
+		protected override void HandleShellPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			base.HandleShellPropertyChanged(sender, e);
 
 			if (e.PropertyName == Maui.FixesAndWorkarounds.iOSSpecific.ShellAttachedProperties.PrefersLargeTitlesProperty.PropertyName)
-                UpdateLargeTitle();
-        }
+				UpdateLargeTitle();
+		}
 
-        protected override void Dispose(bool disposing)
-        {
-            (Context as ShellRenderer).Element.PropertyChanged -= HandleElementPropertyChanged;
-            base.Dispose(disposing);
-        }
+		void UpdateLargeTitle()
+		{
 
-        void UpdateLargeTitle()
-        {
-
-            if (!OperatingSystem.IsIOSVersionAtLeast(11))
-                return;
+			if (!OperatingSystem.IsIOSVersionAtLeast(11))
+				return;
 
 			var value = Maui.FixesAndWorkarounds.iOSSpecific.ShellAttachedProperties.GetPrefersLargeTitles(Shell.Current);
-            this.ViewController.NavigationItem.LargeTitleDisplayMode = UINavigationItemLargeTitleDisplayMode.Always;
-            this.NavigationItem.LargeTitleDisplayMode = UINavigationItemLargeTitleDisplayMode.Always;
-            NavigationBar.PrefersLargeTitles = value;
-        }
+			this.ViewController.NavigationItem.LargeTitleDisplayMode = UINavigationItemLargeTitleDisplayMode.Always;
+			this.NavigationItem.LargeTitleDisplayMode = UINavigationItemLargeTitleDisplayMode.Always;
+			NavigationBar.PrefersLargeTitles = value;
+		}
 
-        protected override IShellSectionRootRenderer CreateShellSectionRootRenderer(ShellSection shellSection, IShellContext shellContext)
+		protected override IShellSectionRootRenderer CreateShellSectionRootRenderer(ShellSection shellSection, IShellContext shellContext)
 		{
 			return new CustomShellSectionRootRenderer(shellSection, shellContext, this);
 		}
