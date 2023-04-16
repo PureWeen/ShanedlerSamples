@@ -23,7 +23,7 @@ public partial class MainPage : ContentPage
 			CounterBtn.Text = $"Clicked {count} times";
 #if IOS
 		flag = !flag;
-		ShanedlerSamples.Library.iOSSpecific.Shell.SetPrefersLargeTitles(Shell.Current, flag);
+        Maui.FixesAndWorkarounds.iOSSpecific.ShellAttachedProperties.SetPrefersLargeTitles(Shell.Current, flag);
 #endif
 		SemanticScreenReader.Announce(CounterBtn.Text);
 	}
