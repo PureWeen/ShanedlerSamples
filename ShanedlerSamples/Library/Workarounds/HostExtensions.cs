@@ -97,6 +97,28 @@ namespace Maui.FixesAndWorkarounds
 			builder.ConfigureMauiHandlers(handlers =>
 			{
 				handlers.AddHandler<Shell, ShellWorkarounds>();
+				bool fixing = false;
+				ToolbarHandler.Mapper.ModifyMapping("ToolbarItems", (handler, toolbar, action) =>
+				{
+					if (Shell.Current is null)
+					{
+						action.Invoke(handler, toolbar);
+						return;
+					}
+
+					if (fixing)
+					{
+						action?.Invoke(handler, toolbar);
+					}
+					else
+					{
+						fixing = true;
+						var bar = (Shell.Current as IToolbarElement).Toolbar;
+						bar.GetType().GetMethod("ApplyChanges", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
+						.Invoke(bar, null);
+						fixing = false;
+					}
+				});
 			});
 
 #endif
