@@ -3,6 +3,7 @@ using CoreGraphics;
 using Foundation;
 using Maui.FixesAndWorkarounds.Library.Common;
 using Microsoft.Maui;
+using Microsoft.Maui.Controls;
 using Microsoft.Maui.Controls.Handlers.Compatibility;
 using Microsoft.Maui.Controls.Internals;
 using Microsoft.Maui.Controls.Platform.Compatibility;
@@ -43,6 +44,7 @@ namespace Maui.FixesAndWorkarounds
 		CustomShellSectionRenderer _customShellSectionRenderer;
 		public CustomShellSectionRootRenderer(ShellSection shellSection, IShellContext shellContext, CustomShellSectionRenderer customShellSectionRenderer) : base(shellSection, shellContext)
 		{
+			ShellSection = shellSection;
 			_customShellSectionRenderer = customShellSectionRenderer;
 		}
 
@@ -50,6 +52,62 @@ namespace Maui.FixesAndWorkarounds
 		{
 			base.ViewDidLoad();
 			_customShellSectionRenderer.SnagTracker();
+		}
+		IShellSectionController ShellSectionController => ShellSection;
+
+		public ShellSection ShellSection { get; }
+
+		UIEdgeInsets _additionalSafeArea = UIEdgeInsets.Zero;
+		void UpdateAdditionalSafeAreaInsets()
+		{
+			if (OperatingSystem.IsIOSVersionAtLeast(11) && ChildViewControllers is not null)
+			{
+				var items = ShellSectionController.GetItems();
+				for (int i = 0; i < ChildViewControllers.Length; i++)
+				{
+					var shellContent = ChildViewControllers[i];
+					UpdateAdditionalSafeAreaInsets(shellContent);
+				}
+			}
+		}
+
+		protected override void LayoutRenderers()
+		{
+			base.LayoutRenderers();
+			UpdateAdditionalSafeAreaInsets();
+		}
+
+		public override void AddChildViewController(UIViewController childController)
+		{
+			base.AddChildViewController(childController);
+			UpdateAdditionalSafeAreaInsets(childController);
+		}
+
+		public override void ViewDidLayoutSubviews()
+		{
+			base.ViewDidLayoutSubviews();
+			UpdateAdditionalSafeAreaInsets();
+		}
+
+		void UpdateAdditionalSafeAreaInsets(UIViewController viewController)
+		{
+			if (viewController is not PageViewController)
+				return;
+
+			if (ShellSectionController.GetItems().Count > 1)
+			{
+				_additionalSafeArea = new UIEdgeInsets(35, 0, 0, 0);
+			}
+			else
+			{
+				_additionalSafeArea = UIEdgeInsets.Zero;
+			}
+
+			if (OperatingSystem.IsIOSVersionAtLeast(11) && viewController is not null)
+			{
+				if (!viewController.AdditionalSafeAreaInsets.Equals(_additionalSafeArea))
+					viewController.AdditionalSafeAreaInsets = _additionalSafeArea;
+			}
 		}
 	}
 
