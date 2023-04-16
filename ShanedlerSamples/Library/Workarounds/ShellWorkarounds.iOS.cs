@@ -75,7 +75,7 @@ namespace Maui.FixesAndWorkarounds
         {
             base.HandlePropertyChanged(sender, e);
 
-            if (e.PropertyName == ShanedlerSamples.Library.iOSSpecific.Shell.PrefersLargeTitlesProperty.PropertyName)
+			if (e.PropertyName == Maui.FixesAndWorkarounds.iOSSpecific.ShellAttachedProperties.PrefersLargeTitlesProperty.PropertyName)
                 UpdateLargeTitle();
         }
 
@@ -91,7 +91,7 @@ namespace Maui.FixesAndWorkarounds
             if (!OperatingSystem.IsIOSVersionAtLeast(11))
                 return;
 
-            var value = ShanedlerSamples.Library.iOSSpecific.Shell.GetPrefersLargeTitles(Shell.Current);
+			var value = Maui.FixesAndWorkarounds.iOSSpecific.ShellAttachedProperties.GetPrefersLargeTitles(Shell.Current);
             this.ViewController.NavigationItem.LargeTitleDisplayMode = UINavigationItemLargeTitleDisplayMode.Always;
             this.NavigationItem.LargeTitleDisplayMode = UINavigationItemLargeTitleDisplayMode.Always;
             NavigationBar.PrefersLargeTitles = value;

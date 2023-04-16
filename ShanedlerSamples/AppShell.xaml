@@ -4,8 +4,8 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:ShanedlerSamples"
-    xmlns:ios="clr-namespace:ShanedlerSamples.Library.iOSSpecific"
-    ios:Shell.PrefersLargeTitles="true"
+    xmlns:ios="clr-namespace:Maui.FixesAndWorkarounds.iOSSpecific"
+    ios:ShellAttachedProperties.PrefersLargeTitles="true"
 	xmlns:libary="clr-namespace:Maui.FixesAndWorkarounds">
 
     <FlyoutItem Title="Page 1">
