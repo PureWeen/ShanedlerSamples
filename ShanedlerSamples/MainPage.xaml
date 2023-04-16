@@ -2,7 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="ShanedlerSamples.MainPage"
-            xmlns:local="clr-namespace:Maui.FixesAndWorkarounds"
+             xmlns:local="clr-namespace:Maui.FixesAndWorkarounds"
              Title="First Page">
 
     <ScrollView>
@@ -45,7 +45,7 @@
             </Entry>
             <Button
                 x:Name="CounterBtn"
-                Text="Click me"
+                Text="Click to change the LargetTitle property"
                 SemanticProperties.Hint="Counts the number of times you click"
                 Clicked="OnCounterClicked"
                 HorizontalOptions="Center" />

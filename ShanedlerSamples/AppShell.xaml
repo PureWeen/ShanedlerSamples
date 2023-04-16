@@ -1,18 +1,27 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+﻿<?xml version="1.0" encoding="UTF-8" ?>
 <Shell
     x:Class="ShanedlerSamples.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:ShanedlerSamples"
+    xmlns:ios="clr-namespace:ShanedlerSamples.Library.iOSSpecific"
+    ios:Shell.PrefersLargeTitles="true"
 	xmlns:libary="clr-namespace:Maui.FixesAndWorkarounds">
 
-    <libary:ShellContentDI
+    <FlyoutItem Title="Page 1">
+        <Tab>
+
+            <libary:ShellContentDI
         Title="Home"
         ContentTemplate="{DataTemplate local:MainPage}" />
-
-
-	<libary:ShellContentDI
+            <libary:ShellContentDI
+        Title="Home2"
+        ContentTemplate="{DataTemplate local:MainPage}" />
+        </Tab>
+    </FlyoutItem>
+    <FlyoutItem Title="Page 2">
+        <libary:ShellContentDI
         Title="Keyboard"
         ContentTemplate="{DataTemplate local:KeyboardPage}" />
-
+    </FlyoutItem>
 </Shell>
