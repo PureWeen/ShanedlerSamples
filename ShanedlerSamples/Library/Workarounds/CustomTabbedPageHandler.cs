@@ -20,8 +20,7 @@ namespace Maui.FixesAndWorkarounds
 		public bool IsBottomTabPlacement =>
 			(Element != null) ?
 				Microsoft.Maui.Controls.PlatformConfiguration.AndroidSpecific.TabbedPage.GetToolbarPlacement(Element.OnThisPlatform()) == Microsoft.Maui.Controls.PlatformConfiguration.AndroidSpecific.ToolbarPlacement.Bottom : false;
-		//AndroidX.RecyclerView.Widget.RecyclerView.Adapter _previousAdapter;
-
+		
 		public override void SetVirtualView(IView view)
 		{
 			((IPageController)view).InternalChildren.CollectionChanged -= OnChildrenCollectionChanged;
@@ -31,30 +30,13 @@ namespace Maui.FixesAndWorkarounds
 
 			var virtualView = (TabbedPage)view;
 			_viewPager = PlatformView as ViewPager2;
-			//_previousAdapter = _viewPager.Adapter;
 			_viewPager.Adapter = (_adapter = new CustomMultiPageFragmentStateAdapter<Page>(virtualView, MauiContext.GetFragmentManager(), MauiContext) { CountOverride = virtualView.Children.Count });
 
 		}
 
-		//protected override void DisconnectHandler(Android.Views.View platformView)
-		//{
-		//	((IPageController)VirtualView).InternalChildren.CollectionChanged -= OnChildrenCollectionChanged;
-		//	base.DisconnectHandler(platformView);
-		//}
-
 		void OnChildrenCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
 		{
 			var currentIndex = Element.Children.IndexOf(Element.CurrentPage);
-
-			//try
-			//{
-			//	CustomFragmentContainer.InTheThrowsOfTheAdapterHack = true;
-			//	_viewPager.Adapter = _previousAdapter;
-			//}
-			//finally
-			//{
-			//	CustomFragmentContainer.InTheThrowsOfTheAdapterHack = false;
-			//}
 
 			(VirtualView as BindableObject)
 				.Dispatcher.Dispatch(() =>
