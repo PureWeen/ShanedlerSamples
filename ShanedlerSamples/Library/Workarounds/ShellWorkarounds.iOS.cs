@@ -37,6 +37,39 @@ namespace Maui.FixesAndWorkarounds
 		{
 			return new CustomShellSectionRenderer(this);
 		}
+
+	}
+
+
+	public class CustomShellSectionRootHeader : ShellSectionRootHeader
+	{
+		bool _isRotating;
+
+		public CustomShellSectionRootHeader(IShellContext shellContext) : base(shellContext)
+		{
+		}
+
+		public override void ViewDidLayoutSubviews()
+		{
+			base.ViewDidLayoutSubviews();
+
+			if (_isRotating)
+			{
+				this.Invoke(() =>
+				{
+					this.CollectionView.ReloadData();
+				}, 0);
+			}
+
+			_isRotating = false;
+		}
+
+
+		public override void ViewWillTransitionToSize(CGSize toSize, IUIViewControllerTransitionCoordinator coordinator)
+		{
+			base.ViewWillTransitionToSize(toSize, coordinator);
+			_isRotating = true;
+		}
 	}
 
 	public class CustomShellSectionRootRenderer : ShellSectionRootRenderer
@@ -46,6 +79,12 @@ namespace Maui.FixesAndWorkarounds
 		{
 			ShellSection = shellSection;
 			_customShellSectionRenderer = customShellSectionRenderer;
+		}
+
+		public CustomShellSectionRootHeader CustomShellSectionRootHeader { get; set; }
+		protected override IShellSectionRootHeader CreateShellSectionRootHeader(IShellContext shellContext)
+		{
+			return (CustomShellSectionRootHeader = new CustomShellSectionRootHeader(shellContext));
 		}
 
 		public override void ViewDidLoad()
@@ -137,7 +176,6 @@ namespace Maui.FixesAndWorkarounds
 
 		void UpdateLargeTitle()
 		{
-
 			if (!OperatingSystem.IsIOSVersionAtLeast(11))
 				return;
 
@@ -145,11 +183,20 @@ namespace Maui.FixesAndWorkarounds
 			this.ViewController.NavigationItem.LargeTitleDisplayMode = UINavigationItemLargeTitleDisplayMode.Always;
 			this.NavigationItem.LargeTitleDisplayMode = UINavigationItemLargeTitleDisplayMode.Always;
 			NavigationBar.PrefersLargeTitles = value;
+
+			this.Invoke(() =>
+			{
+				if (_customShellSectionRootRenderer?.CustomShellSectionRootHeader is UICollectionViewController uvcvc)
+				{
+					uvcvc?.CollectionView?.ReloadData();
+				}
+			}, 0);
 		}
 
+		CustomShellSectionRootRenderer _customShellSectionRootRenderer;
 		protected override IShellSectionRootRenderer CreateShellSectionRootRenderer(ShellSection shellSection, IShellContext shellContext)
 		{
-			return new CustomShellSectionRootRenderer(shellSection, shellContext, this);
+			return (_customShellSectionRootRenderer = new CustomShellSectionRootRenderer(shellSection, shellContext, this));
 		}
 
 		public void SnagTracker()
