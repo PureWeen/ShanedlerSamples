@@ -7,6 +7,7 @@ using Microsoft.Maui.Controls.Handlers.Compatibility;
 
 using Microsoft.Maui.Handlers;
 using Microsoft.Maui.LifecycleEvents;
+using System.Collections;
 using System.Reflection;
 
 namespace Maui.FixesAndWorkarounds
@@ -87,22 +88,53 @@ namespace Maui.FixesAndWorkarounds
 			});
 #endif
 			return builder;
-		}		
+		}
 #endif
 
-		public static MauiAppBuilder ConfigureShellWorkarounds(this MauiAppBuilder builder)
+		static bool toolbarWorkaroundsConfigured = false;
+		public static MauiAppBuilder ConfigureToolbarWorkarounds(this MauiAppBuilder builder)
 		{
+			if (toolbarWorkaroundsConfigured)
+				return builder;
+
+			toolbarWorkaroundsConfigured = true;
+
 #if ANDROID || IOS || MACCATALYST
 
 			builder.ConfigureMauiHandlers(handlers =>
 			{
-				handlers.AddHandler<Shell, ShellWorkarounds>();
 				bool fixing = false;
 				ToolbarHandler.Mapper.ModifyMapping("ToolbarItems", (handler, toolbar, action) =>
 				{
 					if (Shell.Current is null)
 					{
 						action.Invoke(handler, toolbar);
+
+#if ANDROID
+						if (toolbar.Handler?.PlatformView is Google.Android.Material.AppBar.MaterialToolbar mt)
+						{
+							var tracker =
+								toolbar
+									.GetType()
+									.GetField("_toolbarTracker", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
+									.GetValue(toolbar);
+
+							var toolbarItems =
+								tracker
+									.GetType()
+									.GetProperty("ToolbarItems", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
+									.GetValue(tracker) as IList;
+
+							for (int i = 0; i < toolbarItems.Count && i < mt.Menu.Size(); i++)
+							{
+								if (((ToolbarItem)toolbarItems[i]).Order != ToolbarItemOrder.Secondary)
+									continue;
+
+								var menuItem = mt.Menu.GetItem(i);
+								menuItem.SetShowAsAction(Android.Views.ShowAsAction.Never);
+							}
+						}
+#endif
 						return;
 					}
 
@@ -123,6 +155,19 @@ namespace Maui.FixesAndWorkarounds
 
 #endif
 			return builder;
+		}
+
+		public static MauiAppBuilder ConfigureShellWorkarounds(this MauiAppBuilder builder)
+		{
+#if ANDROID || IOS || MACCATALYST
+
+			builder.ConfigureMauiHandlers(handlers =>
+			{
+				handlers.AddHandler<Shell, ShellWorkarounds>();
+			});
+
+#endif
+			return builder.ConfigureToolbarWorkarounds();
 		}
 
 		public static MauiAppBuilder ConfigureTabbedPageWorkarounds(this MauiAppBuilder builder)
