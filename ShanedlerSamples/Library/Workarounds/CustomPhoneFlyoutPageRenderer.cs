@@ -316,12 +316,6 @@ namespace Microsoft.Maui.Controls.Handlers.Compatibility
 
 			_flyoutController.View.Frame = flyoutFrame;
 
-			if (!IsPad)
-			{
-				(FlyoutPage.Flyout as IView).Measure(flyoutFrame.Width, flyoutFrame.Height);
-				FlyoutPage.Flyout.Handler.PlatformArrangeHandler(new Rect(0, 0, flyoutFrame.Width, flyoutFrame.Height));
-			}
-
 			var target = frame;
 			if (Presented)
 			{
