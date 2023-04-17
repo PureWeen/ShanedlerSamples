@@ -19,6 +19,7 @@ namespace Microsoft.Maui.Controls.Handlers.Compatibility
 {
 	public class CustomPhoneFlyoutPageRenderer : UIViewController, IPlatformViewHandler
 	{
+
 		UIView _clickOffView;
 		UIViewController _detailController;
 		VisualElement _element;
@@ -170,8 +171,6 @@ namespace Microsoft.Maui.Controls.Handlers.Compatibility
 				if (!FlyoutPageController.ShouldShowSplitMode && _presented)
 					UpdatePresented(false);
 			}
-
-			UpdateLeftBarButton();
 		}
 
 		void UpdatePresented(bool newValue, bool animated = false)
@@ -317,7 +316,6 @@ namespace Microsoft.Maui.Controls.Handlers.Compatibility
 
 			_flyoutController.View.Frame = flyoutFrame;
 
-
 			if (!IsPad)
 			{
 				(FlyoutPage.Flyout as IView).Measure(flyoutFrame.Width, flyoutFrame.Height);
@@ -357,7 +355,11 @@ namespace Microsoft.Maui.Controls.Handlers.Compatibility
 			}
 
 			FlyoutPageController.FlyoutBounds = new Rect(flyoutFrame.X, 0, flyoutFrame.Width, flyoutFrame.Height);
-			FlyoutPageController.DetailBounds = new Rect(target.X, 0, frame.Width, frame.Height);
+
+			if (IsPad)
+				FlyoutPageController.DetailBounds = new Rect(target.X, 0, frame.Width, frame.Height);
+			else
+				FlyoutPageController.DetailBounds = new Rect(0, 0, frame.Width, frame.Height);
 
 			if (Presented)
 				_clickOffView.Frame = _detailController.View.Frame;
