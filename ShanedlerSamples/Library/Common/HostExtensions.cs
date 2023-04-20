@@ -65,7 +65,7 @@ namespace Maui.FixesAndWorkarounds
 				});
 			});
 
-			return builder.ConfigureMauiWorkarounds(true);
+			return builder;
 		}
 
 		public static MauiAppBuilder ConfigureMauiWorkarounds(this MauiAppBuilder builder)
