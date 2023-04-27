@@ -84,7 +84,7 @@ namespace Maui.FixesAndWorkarounds
 
 			builder.ConfigureMauiHandlers(handlers =>
 			{
-				handlers.AddHandler<FlyoutPage, CustomPhoneFlyoutPageRenderer>();
+				handlers.AddHandler<FlyoutPage, CustomPhoneFlyoutPageRendererPopOver>();
 			});
 #endif
 			return builder;
