@@ -10,61 +10,20 @@ namespace Maui.FixesAndWorkarounds
 {
 	public static partial class HostExtensions
 	{
-		public static MauiAppBuilder ConfigureInputTransparentFixes(this MauiAppBuilder builder)
+		public static MauiAppBuilder ConfigureRTLFixes(this MauiAppBuilder builder)
 		{
-			builder.ConfigureMauiHandlers(_ =>
+			builder.ConfigureMauiHandlers(handlers =>
 			{
-				ViewHandler.ViewMapper.ModifyMapping(nameof(ViewHandler.ContainerView), (handler, view, action) =>
-				{
-					action.Invoke(handler, view);
-
-#if ANDROID
-					if (handler.ContainerView is Microsoft.Maui.Platform.WrapperView wrapper)
-						wrapper.InputTransparent = false;
+#if IOS || MACCATALYST
+				handlers.AddHandler(typeof(Microsoft.Maui.ILayout), typeof(CustomLayoutHandler));
+				handlers.AddHandler(typeof(Layout), typeof(CustomLayoutHandler));
+				handlers.AddHandler(typeof(Page), typeof(CustomPageHandler));
+				handlers.AddHandler(typeof(ContentView), typeof(CustomContentViewHandler));
+				handlers.AddHandler(typeof(Button), typeof(CustomButtonViewHandler));
+				handlers.AddHandler(typeof(Label), typeof(CustomLabelViewHandler));
+				handlers.AddHandler(typeof(Entry), typeof(CustomEntryViewHandler));
 #endif
-				});
-
-				ViewHandler.ViewMapper.ModifyMapping(nameof(IView.InputTransparent), (handler, view, action) =>
-				{
-					action.Invoke(handler, view);
-#if WINDOWS
-					if (handler.PlatformView is Microsoft.Maui.Platform.LayoutPanel lp)
-					{
-						lp.IsHitTestVisible = true;
-					}
-#endif
-
-					if (handler is ILayoutHandler && view is Microsoft.Maui.ILayout)
-					{
-
-					}
-					else
-					{
-						VisualElement.ControlsVisualElementMapper.UpdateProperty(handler, view, nameof(IView.InputTransparent));
-					}
-				});
-
-				ViewHandler.ViewMapper.ModifyMapping(nameof(Layout.CascadeInputTransparent), (handler, view, action) =>
-				{
-					action.Invoke(handler, view);
-#if WINDOWS
-					if (handler.PlatformView is Microsoft.Maui.Platform.LayoutPanel lp)
-					{
-						lp.IsHitTestVisible = true;
-					}
-#endif
-
-					if (handler is ILayoutHandler && view is Microsoft.Maui.ILayout)
-					{
-
-					}
-					else
-					{
-						VisualElement.ControlsVisualElementMapper.UpdateProperty(handler, view, nameof(Layout.CascadeInputTransparent));
-					}
-				});
 			});
-
 			return builder;
 		}
 
@@ -88,12 +47,12 @@ namespace Maui.FixesAndWorkarounds
 
 			if (addAllWorkaround)
 			{
-				builder.ConfigureInputTransparentFixes();
 				builder.ConfigureShellWorkarounds();
 				builder.ConfigureTabbedPageWorkarounds();
 				builder.ConfigureEntryNextWorkaround();
 				builder.ConfigureKeyboardAutoScroll();
 				builder.ConfigureFlyoutPageWorkarounds();
+				builder.ConfigureRTLFixes();
 #if ANDROID
 				builder.ConfigureEntryFocusOpensKeyboard();
 #endif
