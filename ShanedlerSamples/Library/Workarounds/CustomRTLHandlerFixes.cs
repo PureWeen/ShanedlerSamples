@@ -1,11 +1,13 @@
 ﻿using System;
+#if IOS || MACCATALYST
+using UIKit;
 using CoreGraphics;
+#endif
 using Maui.FixesAndWorkarounds.Library.Common;
 using Microsoft.Maui.Controls.Handlers;
 using Microsoft.Maui.Controls.Handlers.Items;
 using Microsoft.Maui.Handlers;
 using Microsoft.Maui.Platform;
-using UIKit;
 
 namespace Maui.FixesAndWorkarounds
 {
@@ -15,7 +17,7 @@ namespace Maui.FixesAndWorkarounds
 		{
 		}
 
-#if IOS
+#if IOS || MACCATALYST
         public override void PlatformArrange(Rect rect) =>
             this.PlatformArrangeHandler(rect);
 #endif
@@ -27,7 +29,7 @@ namespace Maui.FixesAndWorkarounds
 		{
 		}
 
-#if IOS
+#if IOS || MACCATALYST
         public override void PlatformArrange(Rect rect) =>
             this.PlatformArrangeHandler(rect);
 #endif
@@ -39,7 +41,7 @@ namespace Maui.FixesAndWorkarounds
 		{
 		}
 
-#if IOS
+#if IOS || MACCATALYST
         public override void PlatformArrange(Rect rect) =>
             this.PlatformArrangeHandler(rect);
 #endif
@@ -51,7 +53,7 @@ namespace Maui.FixesAndWorkarounds
 		{
 		}
 
-#if IOS
+#if IOS || MACCATALYST
         public override void PlatformArrange(Rect rect) =>
             this.PlatformArrangeHandler(rect);
 #endif
@@ -63,7 +65,7 @@ namespace Maui.FixesAndWorkarounds
 		{
 		}
 
-#if IOS
+#if IOS || MACCATALYST
         public override void PlatformArrange(Rect rect) =>
             this.PlatformArrangeHandler(rect);
 #endif
@@ -75,7 +77,7 @@ namespace Maui.FixesAndWorkarounds
 		{
 		}
 
-#if IOS
+#if IOS || MACCATALYST
         public override void PlatformArrange(Rect rect) =>
             this.PlatformArrangeHandler(rect);
 
@@ -95,7 +97,7 @@ namespace Maui.FixesAndWorkarounds
 		{
 		}
 
-#if IOS
+#if IOS || MACCATALYST
         public override void PlatformArrange(Rect rect) =>
             this.PlatformArrangeHandler(rect);
 #endif
@@ -107,7 +109,7 @@ namespace Maui.FixesAndWorkarounds
 		{
 		}
 
-#if IOS
+#if IOS || MACCATALYST
         public override void PlatformArrange(Rect rect) =>
             this.PlatformArrangeHandler(rect);
 #endif
@@ -119,7 +121,7 @@ namespace Maui.FixesAndWorkarounds
 		{
 		}
 
-#if IOS
+#if IOS || MACCATALYST
         public override void PlatformArrange(Rect rect) =>
             this.PlatformArrangeHandler(rect);
 #endif
@@ -131,7 +133,7 @@ namespace Maui.FixesAndWorkarounds
 		{
 		}
 
-#if IOS
+#if IOS || MACCATALYST
         public override void PlatformArrange(Rect rect) =>
             this.PlatformArrangeHandler(rect);
 #endif
@@ -143,7 +145,7 @@ namespace Maui.FixesAndWorkarounds
 		{
 		}
 
-#if IOS
+#if IOS || MACCATALYST
         public override void PlatformArrange(Rect rect) =>
             this.PlatformArrangeHandler(rect);
 #endif
@@ -155,7 +157,7 @@ namespace Maui.FixesAndWorkarounds
 		{
 		}
 
-#if IOS
+#if IOS || MACCATALYST
         public override void PlatformArrange(Rect rect) =>
             this.PlatformArrangeHandler(rect);
 #endif
@@ -167,7 +169,7 @@ namespace Maui.FixesAndWorkarounds
 		{
 		}
 
-#if IOS
+#if IOS || MACCATALYST
         public override void PlatformArrange(Rect rect) =>
             this.PlatformArrangeHandler(rect);
 #endif
@@ -179,7 +181,7 @@ namespace Maui.FixesAndWorkarounds
 		{
 		}
 
-#if IOS
+#if IOS || MACCATALYST
         public override void PlatformArrange(Rect rect) =>
             this.PlatformArrangeHandler(rect);
 #endif
@@ -191,7 +193,7 @@ namespace Maui.FixesAndWorkarounds
 		{
 		}
 
-#if IOS
+#if IOS || MACCATALYST
         public override void PlatformArrange(Rect rect) =>
             this.PlatformArrangeHandler(rect);
 #endif
@@ -203,7 +205,7 @@ namespace Maui.FixesAndWorkarounds
 		{
 		}
 
-#if IOS
+#if IOS || MACCATALYST
         public override void PlatformArrange(Rect rect) =>
             this.PlatformArrangeHandler(rect);
 #endif
@@ -215,7 +217,7 @@ namespace Maui.FixesAndWorkarounds
 		{
 		}
 
-#if IOS
+#if IOS || MACCATALYST
         public override void PlatformArrange(Rect rect) =>
             this.PlatformArrangeHandler(rect);
 #endif
@@ -227,7 +229,7 @@ namespace Maui.FixesAndWorkarounds
 		{
 		}
 
-#if IOS
+#if IOS || MACCATALYST
         public override void PlatformArrange(Rect rect) =>
             this.PlatformArrangeHandler(rect);
 #endif
@@ -241,7 +243,7 @@ namespace Maui.FixesAndWorkarounds
 		{
 		}
 
-#if IOS
+#if IOS || MACCATALYST
         public override void PlatformArrange(Rect rect)
         {
             this.PlatformArrangeHandler(rect);
@@ -289,7 +291,7 @@ namespace Maui.FixesAndWorkarounds
 		{
 		}
 
-#if IOS
+#if IOS || MACCATALYST
         public override void PlatformArrange(Rect rect) =>
             this.PlatformArrangeHandler(rect);
 #endif
@@ -301,7 +303,7 @@ namespace Maui.FixesAndWorkarounds
 		{
 		}
 
-#if IOS
+#if IOS || MACCATALYST
         public override void PlatformArrange(Rect rect) =>
             this.PlatformArrangeHandler(rect);
 #endif
@@ -313,7 +315,7 @@ namespace Maui.FixesAndWorkarounds
 		{
 		}
 
-#if IOS
+#if IOS || MACCATALYST
         public override void PlatformArrange(Rect rect) =>
             this.PlatformArrangeHandler(rect);
 #endif
@@ -325,7 +327,7 @@ namespace Maui.FixesAndWorkarounds
 		{
 		}
 
-#if IOS
+#if IOS || MACCATALYST
         public override void PlatformArrange(Rect rect) =>
             this.PlatformArrangeHandler(rect);
 #endif
@@ -337,7 +339,7 @@ namespace Maui.FixesAndWorkarounds
 		{
 		}
 
-#if IOS
+#if IOS || MACCATALYST
         public override void PlatformArrange(Rect rect) =>
             this.PlatformArrangeHandler(rect);
 #endif
@@ -349,7 +351,7 @@ namespace Maui.FixesAndWorkarounds
 		{
 		}
 
-#if IOS
+#if IOS || MACCATALYST
         public override void PlatformArrange(Rect rect) =>
             this.PlatformArrangeHandler(rect);
 #endif
@@ -361,7 +363,7 @@ namespace Maui.FixesAndWorkarounds
 		{
 		}
 
-#if IOS
+#if IOS || MACCATALYST
         public override void PlatformArrange(Rect rect) =>
             this.PlatformArrangeHandler(rect);
 #endif
@@ -373,7 +375,7 @@ namespace Maui.FixesAndWorkarounds
 		{
 		}
 
-#if IOS
+#if IOS || MACCATALYST
         public override void PlatformArrange(Rect rect) =>
             this.PlatformArrangeHandler(rect);
 #endif
@@ -385,7 +387,7 @@ namespace Maui.FixesAndWorkarounds
 		{
 		}
 
-#if IOS
+#if IOS || MACCATALYST
         public override void PlatformArrange(Rect rect) =>
             this.PlatformArrangeHandler(rect);
 #endif
@@ -397,7 +399,7 @@ namespace Maui.FixesAndWorkarounds
 		{
 		}
 
-#if IOS
+#if IOS || MACCATALYST
         public override void PlatformArrange(Rect rect) =>
             this.PlatformArrangeHandler(rect);
 #endif
@@ -409,7 +411,7 @@ namespace Maui.FixesAndWorkarounds
 		{
 		}
 
-#if IOS
+#if IOS || MACCATALYST
         public override void PlatformArrange(Rect rect) =>
             this.PlatformArrangeHandler(rect);
 #endif
@@ -421,7 +423,7 @@ namespace Maui.FixesAndWorkarounds
 		{
 		}
 
-#if IOS
+#if IOS || MACCATALYST
         public override void PlatformArrange(Rect rect) =>
             this.PlatformArrangeHandler(rect);
 #endif
@@ -433,7 +435,7 @@ namespace Maui.FixesAndWorkarounds
 		{
 		}
 
-#if IOS
+#if IOS || MACCATALYST
         public override void PlatformArrange(Rect rect) =>
             this.PlatformArrangeHandler(rect);
 #endif
@@ -445,7 +447,7 @@ namespace Maui.FixesAndWorkarounds
 		{
 		}
 
-#if IOS
+#if IOS || MACCATALYST
         public override void PlatformArrange(Rect rect) =>
             this.PlatformArrangeHandler(rect);
 #endif
@@ -457,7 +459,7 @@ namespace Maui.FixesAndWorkarounds
 		{
 		}
 
-#if IOS
+#if IOS || MACCATALYST
         public override void PlatformArrange(Rect rect) =>
             this.PlatformArrangeHandler(rect);
 #endif

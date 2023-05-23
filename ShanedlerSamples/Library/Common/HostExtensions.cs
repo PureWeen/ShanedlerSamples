@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Shapes = Microsoft.Maui.Controls.Shapes;
 
 namespace Maui.FixesAndWorkarounds
 {
@@ -15,13 +16,49 @@ namespace Maui.FixesAndWorkarounds
 			builder.ConfigureMauiHandlers(handlers =>
 			{
 #if IOS || MACCATALYST
+
 				handlers.AddHandler(typeof(Microsoft.Maui.ILayout), typeof(CustomLayoutHandler));
+
+
+				handlers.AddHandler<CollectionView, CustomCollectionViewHandler>();
+				handlers.AddHandler<CarouselView, CustomCarouselViewHandler>();
+				handlers.AddHandler<ActivityIndicator, CustomActivityIndicatorHandler>();
+				handlers.AddHandler<BoxView, CustomShapeViewHandler>();
+				handlers.AddHandler<Button, CustomButtonHandler>();
+				handlers.AddHandler<CheckBox, CustomCheckBoxHandler>();
+				handlers.AddHandler<DatePicker, CustomDatePickerHandler>();
+				handlers.AddHandler<Editor, CustomEditorHandler>();
+				handlers.AddHandler<Entry, CustomEntryHandler>();
+				handlers.AddHandler<GraphicsView, CustomGraphicsViewHandler>();
+				handlers.AddHandler<Image, CustomImageHandler>();
+				handlers.AddHandler<Label, CustomLabelHandler>();
+				handlers.AddHandler<Layout, CustomLayoutHandler>();
+				handlers.AddHandler<Picker, CustomPickerHandler>();
+				handlers.AddHandler<ProgressBar, CustomProgressBarHandler>();
+				handlers.AddHandler<ScrollView, CustomScrollViewHandler>();
+				handlers.AddHandler<SearchBar, CustomSearchBarHandler>();
+				handlers.AddHandler<Slider, CustomSliderHandler>();
+				handlers.AddHandler<Stepper, CustomStepperHandler>();
+				handlers.AddHandler<Switch, CustomSwitchHandler>();
+				handlers.AddHandler<TimePicker, CustomTimePickerHandler>();
+				handlers.AddHandler<Page, CustomPageHandler>();
+				handlers.AddHandler<WebView, CustomWebViewHandler>();
+				handlers.AddHandler<Border, CustomBorderHandler>();
+				handlers.AddHandler<IContentView, CustomContentViewHandler>();
+				handlers.AddHandler<Shapes.Ellipse, CustomShapeViewHandler>();
+				handlers.AddHandler<Shapes.Line, CustomLineHandler>();
+				handlers.AddHandler<Shapes.Path, CustomPathHandler>();
+				handlers.AddHandler<Shapes.Polygon, CustomPolygonHandler>();
+				handlers.AddHandler<Shapes.Polyline, CustomPolylineHandler>();
+				handlers.AddHandler<Shapes.Rectangle, CustomRectangleHandler>();
+				handlers.AddHandler<Shapes.RoundRectangle, CustomRoundRectangleHandler>();
+				handlers.AddHandler<ImageButton, CustomImageButtonHandler>();
+				handlers.AddHandler<IndicatorView, CustomIndicatorViewHandler>();
+				handlers.AddHandler<RadioButton, CustomRadioButtonHandler>();
+
 				handlers.AddHandler(typeof(Layout), typeof(CustomLayoutHandler));
 				handlers.AddHandler(typeof(Page), typeof(CustomPageHandler));
 				handlers.AddHandler(typeof(ContentView), typeof(CustomContentViewHandler));
-				handlers.AddHandler(typeof(Button), typeof(CustomButtonViewHandler));
-				handlers.AddHandler(typeof(Label), typeof(CustomLabelViewHandler));
-				handlers.AddHandler(typeof(Entry), typeof(CustomEntryViewHandler));
 #endif
 			});
 			return builder;
