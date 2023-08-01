@@ -19,4 +19,6 @@ public class AppDelegate : MauiUIApplicationDelegate
 	{
 		base.PressesEnded(presses, evt);
 	}
+
+	public override UIKeyCommand[] KeyCommands => base.KeyCommands;
 }
