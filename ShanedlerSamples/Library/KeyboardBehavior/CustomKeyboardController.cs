@@ -16,22 +16,35 @@ namespace Maui.FixesAndWorkarounds
 
         public override void PressesBegan(NSSet<UIPress> presses, UIPressesEvent evt)
         {
-            base.PressesBegan(presses, evt);
+			bool result = false;
+			foreach (var item in keyboardBehaviors)
+			{
+				result = item.PressesBegan(presses, evt);
+				if (result)
+					break;
+			}
 
-            foreach (var item in keyboardBehaviors)
-                item.PressesBegan(presses, evt);
-
-        }
+			if (!result)
+				base.PressesBegan(presses, evt);
+		}
 
         public override void PressesEnded(NSSet<UIPress> presses, UIPressesEvent evt)
         {
-            base.PressesEnded(presses, evt);
-
+            bool result = false;
             foreach (var item in keyboardBehaviors)
-                item.PressesEnded(presses, evt);
-        }
+            {
+				result = item.PressesEnded(presses, evt);
+                if (result)
+                    break;
+            }
 
-        public static void Register(KeyboardBehavior keyboardBehavior)
+
+            if (!result)
+			    base.PressesEnded(presses, evt);
+
+		}
+
+		public static void Register(KeyboardBehavior keyboardBehavior)
         {
             keyboardBehaviors.Add(keyboardBehavior);
         }

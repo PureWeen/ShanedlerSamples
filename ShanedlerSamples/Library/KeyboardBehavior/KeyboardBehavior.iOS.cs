@@ -23,15 +23,33 @@ namespace Maui.FixesAndWorkarounds
             CustomKeyboardController.UnRegister(this);
         }
 
-        public void PressesBegan(NSSet<UIPress> presses, UIPressesEvent evt)
-        {
-            System.Diagnostics.Debug.WriteLine($"PressesBegan: {evt}");
+        public bool PressesBegan(NSSet<UIPress> presses, UIPressesEvent evt)
+		{
+			System.Diagnostics.Debug.WriteLine($"STARTING PressesBegan");
+
+			foreach (var item in evt.AllPresses)
+                if (item is UIPress allPress)
+                    System.Diagnostics.Debug.WriteLine($"PressesBegan: {allPress?.Key}");
+
+			System.Diagnostics.Debug.WriteLine($"PressesBegan: {evt}");
+
+			System.Diagnostics.Debug.WriteLine($"FINISHING PressesBegan");
+
+			return true;
         }
 
-        public void PressesEnded(NSSet<UIPress> presses, UIPressesEvent evt)
-        {
-            System.Diagnostics.Debug.WriteLine($"PressesEnded: {evt}");
-        }
+        public bool PressesEnded(NSSet<UIPress> presses, UIPressesEvent evt)
+		{
+			System.Diagnostics.Debug.WriteLine($"STARTING PressesEnded");
+			foreach (var item in evt.AllPresses)
+				if (item is UIPress allPress)
+					System.Diagnostics.Debug.WriteLine($"PressesEnded: {allPress?.Key}");
+
+			System.Diagnostics.Debug.WriteLine($"PressesEnded: {evt}");
+			System.Diagnostics.Debug.WriteLine($"STARTING PressesEnded");
+
+			return true;
+		}
     }
 }
 #endif
