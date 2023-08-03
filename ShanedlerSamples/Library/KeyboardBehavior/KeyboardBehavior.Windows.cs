@@ -10,7 +10,7 @@ namespace Maui.FixesAndWorkarounds
 {
 	public partial class KeyboardBehavior : PlatformBehavior<View>
 	{
-		protected override void OnAttachedTo(View bindable, FrameworkElement platformView)
+		protected override void OnAttachedTo(VisualElement bindable, FrameworkElement platformView)
 		{
 			base.OnAttachedTo(bindable, platformView);
 			platformView.KeyDown += OnKeyDown;
@@ -19,7 +19,7 @@ namespace Maui.FixesAndWorkarounds
 			platformView.PreviewKeyUp += OnPreviewKeyUp;
 		}
 
-		protected override void OnDetachedFrom(View bindable, FrameworkElement platformView)
+		protected override void OnDetachedFrom(VisualElement bindable, FrameworkElement platformView)
 		{
 			base.OnDetachedFrom(bindable, platformView);
 

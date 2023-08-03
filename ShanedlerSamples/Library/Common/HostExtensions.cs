@@ -80,7 +80,16 @@ namespace Maui.FixesAndWorkarounds
 #if ANDROID || IOS || MACCATALYST || WINDOWS
 				handlers.AddHandler(typeof(Frame), typeof(CustomFrameRenderer));
 #endif
-			});
+
+#if IOS || MACCATALYST
+				PageHandler.PlatformViewFactory = (handler) =>
+				{
+					var vc = new CustomKeyboardController(handler.VirtualView, handler.MauiContext);
+					handler.ViewController = vc;
+					return (Microsoft.Maui.Platform.ContentView)vc.View.Subviews[0];
+				};
+#endif
+            });
 
 			if (addAllWorkaround)
 			{
