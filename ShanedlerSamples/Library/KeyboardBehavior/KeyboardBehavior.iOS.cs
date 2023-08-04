@@ -11,45 +11,52 @@ namespace Maui.FixesAndWorkarounds
 {
 	public partial class KeyboardBehavior : PlatformBehavior<VisualElement>
 	{
-        protected override void OnAttachedTo(VisualElement bindable, UIView platformView)
-        {
-            base.OnAttachedTo(bindable, platformView);
-            CustomKeyboardController.Register(this);
-        }
-
-        protected override void OnDetachedFrom(VisualElement bindable, UIView platformView)
-        {
-            base.OnDetachedFrom(bindable, platformView);
-            CustomKeyboardController.UnRegister(this);
-        }
-
-        public bool PressesBegan(NSSet<UIPress> presses, UIPressesEvent evt)
+		protected override void OnAttachedTo(VisualElement bindable, UIView platformView)
 		{
-			System.Diagnostics.Debug.WriteLine($"STARTING PressesBegan");
+			base.OnAttachedTo(bindable, platformView);
 
-			foreach (var item in evt.AllPresses)
-                if (item is UIPress allPress)
-                    System.Diagnostics.Debug.WriteLine($"PressesBegan: {allPress?.Key}");
+			var page = GetParentPage(bindable);
 
-			System.Diagnostics.Debug.WriteLine($"PressesBegan: {evt}");
+			if (page == null)
+				return;
 
-			System.Diagnostics.Debug.WriteLine($"FINISHING PressesBegan");
+			// Register to key press events
+			if (page.Handler is not IPlatformViewHandler viewHandler ||
+				viewHandler.ViewController is not KeyboardPageViewController keyboardPageViewController)
+				return;
 
-			return true;
-        }
-
-        public bool PressesEnded(NSSet<UIPress> presses, UIPressesEvent evt)
-		{
-			System.Diagnostics.Debug.WriteLine($"STARTING PressesEnded");
-			foreach (var item in evt.AllPresses)
-				if (item is UIPress allPress)
-					System.Diagnostics.Debug.WriteLine($"PressesEnded: {allPress?.Key}");
-
-			System.Diagnostics.Debug.WriteLine($"PressesEnded: {evt}");
-			System.Diagnostics.Debug.WriteLine($"STARTING PressesEnded");
-
-			return true;
+			keyboardPageViewController.RegisterKeyboardBehavior(this);
 		}
-    }
+
+		protected override void OnDetachedFrom(VisualElement bindable, UIView platformView)
+		{
+			base.OnDetachedFrom(bindable, platformView);
+
+			var page = GetParentPage(bindable);
+
+			if (page == null)
+				return;
+
+			// Unregister from key press events
+			if (page.Handler is not IPlatformViewHandler viewHandler ||
+				viewHandler.ViewController is not KeyboardPageViewController keyboardPageViewController)
+				return;
+
+			keyboardPageViewController.UnregisterKeyboardBehavior(this);
+		}
+
+		static Page GetParentPage(VisualElement element)
+		{
+			if (element is Page)
+				return element as Page;
+
+			Element currentElement = element;
+
+			while (currentElement != null && currentElement is not Page)
+				currentElement = currentElement.Parent;
+
+			return currentElement as Page;
+		}
+	}
 }
 #endif

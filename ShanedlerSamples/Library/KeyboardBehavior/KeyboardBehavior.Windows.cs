@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Maui.FixesAndWorkarounds
 {
-	public partial class KeyboardBehavior : PlatformBehavior<View>
+	public partial class KeyboardBehavior : PlatformBehavior<VisualElement>
 	{
 		protected override void OnAttachedTo(VisualElement bindable, FrameworkElement platformView)
 		{
