@@ -1,5 +1,6 @@
 ﻿using Microsoft.Maui.Controls;
 using Microsoft.Maui.Handlers;
+using ShanedlerSamples.Library.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -71,6 +72,7 @@ namespace Maui.FixesAndWorkarounds
 
 		public static MauiAppBuilder ConfigureMauiWorkarounds(this MauiAppBuilder builder, bool addAllWorkaround)
 		{
+			ShellToolbarExtensions.Init();
 			builder.ConfigureMauiHandlers(handlers =>
 			{
 #if ANDROID
