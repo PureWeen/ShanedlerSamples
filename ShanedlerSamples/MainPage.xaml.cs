@@ -1,4 +1,5 @@
 ﻿using Microsoft.Maui.Controls.Platform.Compatibility;
+using ShanedlerSamples.Library.Common;
 
 namespace ShanedlerSamples;
 
@@ -26,6 +27,13 @@ public partial class MainPage : ContentPage
         Maui.FixesAndWorkarounds.iOSSpecific.ShellAttachedProperties.SetPrefersLargeTitles(Shell.Current, flag);
 #endif
 		SemanticScreenReader.Announce(CounterBtn.Text);
+
+
+		var color = ShellToolbarExtensions.GetToolbarBackgroundColor(this);
+
+		color = Colors.Red == color ? Colors.Blue : Colors.Red;
+
+		ShellToolbarExtensions.SetToolbarBackgroundColor(this, color);
 	}
 }
 
