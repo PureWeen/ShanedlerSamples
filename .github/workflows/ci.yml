@@ -26,6 +26,7 @@ jobs:
     - name: Setup Java
       uses: actions/setup-java@v3
       with:
+        distribution: 'microsoft'
         java-version: 11
     - name: Restore dependencies
       run: dotnet restore ShanedlerSamples.sln
