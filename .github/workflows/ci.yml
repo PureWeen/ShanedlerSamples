@@ -23,6 +23,10 @@ jobs:
           8.0.x
     - name: Install .NET MAUI
       run: dotnet workload install maui
+    - name: Setup Java
+      uses: actions/setup-java@v3
+      with:
+        java-version: 11
     - name: Restore dependencies
       run: dotnet restore ShanedlerSamples.sln
     - name: Build
